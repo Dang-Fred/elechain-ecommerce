@@ -18,6 +18,9 @@ public class DanhMuc {
     private Long maDM;
 
     private String tenDM;
+    
+    @Column(name = "Logo", columnDefinition = "NVARCHAR(MAX)")
+    private String logo;
 
     @OneToMany(mappedBy = "danhMuc", fetch = FetchType.LAZY)
     @JsonIgnore

@@ -1,4 +1,4 @@
-// File: DanhMucResponse.java
+// File: HangSXResponse.java
 package hcmute.dto.response;
 
 import lombok.AllArgsConstructor;
@@ -10,8 +10,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DanhMucResponse {
-    private Long maDM;
-    private String tenDM;
+public class HangSXResponse {
+    private Long maHang;
+    private String tenHang;
     private String logo;
 }

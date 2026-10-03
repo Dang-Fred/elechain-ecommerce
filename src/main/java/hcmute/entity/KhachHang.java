@@ -28,6 +28,9 @@ public class KhachHang {
 
     private String matKhau;
     private String diaChi;
+    
+    @Column(name = "Avatar", columnDefinition = "NVARCHAR(MAX)")
+    private String avatar;
 
     @Min(value = 0, message = "Số dư ví không được âm")
     private BigDecimal soDuVi;

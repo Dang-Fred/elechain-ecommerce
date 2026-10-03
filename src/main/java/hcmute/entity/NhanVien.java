@@ -19,6 +19,9 @@ public class NhanVien {
     private String soDienThoai;
     private String matKhau;
     private String vaiTro; 
+    
+    @Column(name = "Avatar", columnDefinition = "NVARCHAR(MAX)")
+    private String avatar;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ma_cn")

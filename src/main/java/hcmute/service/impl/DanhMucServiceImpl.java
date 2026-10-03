@@ -24,7 +24,7 @@ public class DanhMucServiceImpl implements DanhMucService {
     @Override
     public List<DanhMucResponse> getAll() {
         return danhMucRepository.findAll().stream()
-                .map(dm -> new DanhMucResponse(dm.getMaDM(), dm.getTenDM()))
+                .map(dm -> new DanhMucResponse(dm.getMaDM(), dm.getTenDM(),dm.getLogo()))
                 .collect(Collectors.toList());
     }
 
@@ -32,7 +32,7 @@ public class DanhMucServiceImpl implements DanhMucService {
     public DanhMucResponse getById(Long id) {
         DanhMuc dm = danhMucRepository.findById(id)
                 .orElseThrow(() -> new CustomException("Không tìm thấy danh mục", HttpStatus.NOT_FOUND));
-        return new DanhMucResponse(dm.getMaDM(), dm.getTenDM());
+        return new DanhMucResponse(dm.getMaDM(), dm.getTenDM(),dm.getLogo());
     }
 
     @Override
@@ -47,7 +47,7 @@ public class DanhMucServiceImpl implements DanhMucService {
         danhMuc.setTenDM(request.getTenDM());
         DanhMuc savedDm = danhMucRepository.save(danhMuc);
         
-        return new DanhMucResponse(savedDm.getMaDM(), savedDm.getTenDM());
+        return new DanhMucResponse(savedDm.getMaDM(), savedDm.getTenDM(),savedDm.getLogo());
     }
 
     @Override
@@ -64,7 +64,7 @@ public class DanhMucServiceImpl implements DanhMucService {
         danhMuc.setTenDM(request.getTenDM());
         DanhMuc updatedDm = danhMucRepository.save(danhMuc);
         
-        return new DanhMucResponse(updatedDm.getMaDM(), updatedDm.getTenDM());
+        return new DanhMucResponse(updatedDm.getMaDM(), updatedDm.getTenDM(),updatedDm.getLogo());
     }
 
     @Override

@@ -18,6 +18,9 @@ public class HangSX {
     private Long maHang;
 
     private String tenHang;
+    
+    @Column(name = "Logo", columnDefinition = "NVARCHAR(MAX)")
+    private String logo;
 
     @OneToMany(mappedBy = "hangSX", fetch = FetchType.LAZY)
     @JsonIgnore

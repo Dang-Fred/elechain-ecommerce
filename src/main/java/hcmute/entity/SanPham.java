@@ -36,4 +36,7 @@ public class SanPham {
     private String moTa;
     
     private String trangThai;
+    
+    @Column(name = "Logo", columnDefinition = "NVARCHAR(MAX)")
+    private String logo;
 }
