@@ -1,7 +1,10 @@
 // File: OtpService.java
 package hcmute.service;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.stereotype.Service;
+
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,52 +13,60 @@ import java.util.concurrent.ConcurrentHashMap;
 public class OtpService {
     
     // Lưu trữ OTP tạm thời. Key = email, Value = Data chứa OTP và thời gian tạo
-    private final Map<String, OtpData> otpStorage = new ConcurrentHashMap<>();
+	private final Map<String, OtpCacheInfo> otpStorage = new ConcurrentHashMap<>();
     private final long OTP_EXPIRATION_TIME = 60 * 1000; // 60 giây
+    
+ // Enum định nghĩa trạng thái OTP
+    public enum OtpStatus {
+        VALID, INVALID, EXPIRED
+    }
 
-    public String generateAndStoreOtp(String email) {
-        // Tạo OTP 6 số ngẫu nhiên
+    public String generateAndStoreOtp(String tenKH, String email, String matKhauBam) {
         String otp = String.format("%06d", new Random().nextInt(999999));
         
-        // Lưu vào Map
-        otpStorage.put(email, new OtpData(otp, System.currentTimeMillis()));
+        OtpCacheInfo cacheInfo = new OtpCacheInfo(tenKH, email, matKhauBam, otp, System.currentTimeMillis());
+        otpStorage.put(email, cacheInfo);
+        
         return otp;
     }
-
-    public boolean validateOtp(String email, String otp) {
-        OtpData otpData = otpStorage.get(email);
+    
+ // Hàm mới: Trả về trạng thái chi tiết của OTP
+    public OtpStatus validateOtpWithStatus(String email, String otp) {
+        OtpCacheInfo cacheInfo = otpStorage.get(email);
         
-        if (otpData == null) {
-            return false; // Không tồn tại hoặc đã bị xóa
+        if (cacheInfo == null) {
+            return OtpStatus.EXPIRED; // Hết hạn hoặc Email không đúng
         }
 
-        // Kiểm tra thời gian hết hạn (60s)
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - otpData.getTimestamp() > OTP_EXPIRATION_TIME) {
-            otpStorage.remove(email); // Xóa OTP hết hạn để giải phóng bộ nhớ
-            return false;
-        }
-
-        // Kiểm tra tính hợp lệ
-        boolean isValid = otpData.getOtp().equals(otp);
-        if (isValid) {
-            // Xác nhận thành công thì xóa đi luôn (One-Time Password)
+        if (System.currentTimeMillis() - cacheInfo.getTimestamp() > OTP_EXPIRATION_TIME) {
             otpStorage.remove(email);
+            return OtpStatus.EXPIRED;
         }
-        return isValid;
+
+        if (cacheInfo.getOtp().equals(otp)) {
+            return OtpStatus.VALID;
+        } else {
+            return OtpStatus.INVALID;
+        }
+    }
+    
+    
+    public OtpCacheInfo getOtpCacheInfo(String email) {
+        return otpStorage.get(email);
     }
 
-    // Lớp nội bộ để giữ OTP và Timestamp
-    private static class OtpData {
-        private final String otp;
-        private final long timestamp;
+    public void clearOtp(String email) {
+        otpStorage.remove(email);
+    }
 
-        public OtpData(String otp, long timestamp) {
-            this.otp = otp;
-            this.timestamp = timestamp;
-        }
-
-        public String getOtp() { return otp; }
-        public long getTimestamp() { return timestamp; }
+ // Class/Record chứa toàn bộ thông tin lưu trong RAM
+    @Getter
+    @AllArgsConstructor
+    public static class OtpCacheInfo {
+        private String tenKH;
+        private String email;
+        private String matKhauBam;
+        private String otp;
+        private long timestamp;
     }
 }
