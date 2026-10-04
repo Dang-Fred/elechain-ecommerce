@@ -29,14 +29,17 @@ public class HangSXRestController {
         return ResponseEntity.ok(hangSXService.getById(id));
     }
 
-    @PostMapping
-    public ResponseEntity<HangSXResponse> createHangSX(@Valid @RequestBody HangSXRequest request) {
+ // Chú ý: Dùng @ModelAttribute thay vì @RequestBody, consume form-data
+    @PostMapping(consumes = {"multipart/form-data"})
+    public ResponseEntity<HangSXResponse> createHangSX(@Valid @ModelAttribute HangSXRequest request) {
         HangSXResponse response = hangSXService.create(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+   
 
-    @PutMapping("/{id}")
-    public ResponseEntity<HangSXResponse> updateHangSX(@PathVariable Long id, @Valid @RequestBody HangSXRequest request) {
+ // Chú ý: Dùng @ModelAttribute thay vì @RequestBody
+    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
+    public ResponseEntity<HangSXResponse> updateHangSX(@PathVariable Long id, @Valid @ModelAttribute HangSXRequest request) {
         HangSXResponse response = hangSXService.update(id, request);
         return ResponseEntity.ok(response);
     }

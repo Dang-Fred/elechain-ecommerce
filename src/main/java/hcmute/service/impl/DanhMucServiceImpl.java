@@ -4,6 +4,7 @@ package hcmute.service.impl;
 import hcmute.dto.request.DanhMucRequest;
 import hcmute.dto.response.DanhMucResponse;
 import hcmute.entity.DanhMuc;
+import hcmute.service.CloudinaryService;
 import hcmute.exception.CustomException;
 import hcmute.repository.DanhMucRepository;
 import hcmute.service.DanhMucService;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,6 +22,9 @@ public class DanhMucServiceImpl implements DanhMucService {
 
     @Autowired
     private DanhMucRepository danhMucRepository;
+    
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     @Override
     public List<DanhMucResponse> getAll() {
@@ -45,8 +50,17 @@ public class DanhMucServiceImpl implements DanhMucService {
 
         DanhMuc danhMuc = new DanhMuc();
         danhMuc.setTenDM(request.getTenDM());
-        DanhMuc savedDm = danhMucRepository.save(danhMuc);
         
+        if (request.getLogoFile() != null && !request.getLogoFile().isEmpty()) {
+            try {
+                String imageUrl = cloudinaryService.uploadImage(request.getLogoFile());
+                danhMuc.setLogo(imageUrl);
+            } catch (IOException e) {
+                throw new CustomException("Lỗi upload ảnh Danh mục", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+        
+        DanhMuc savedDm = danhMucRepository.save(danhMuc);
         return new DanhMucResponse(savedDm.getMaDM(), savedDm.getTenDM(),savedDm.getLogo());
     }
 
@@ -62,8 +76,18 @@ public class DanhMucServiceImpl implements DanhMucService {
         }
 
         danhMuc.setTenDM(request.getTenDM());
-        DanhMuc updatedDm = danhMucRepository.save(danhMuc);
         
+     // Giữ nguyên logic update: Có file thì đè URL, không thì giữ nguyên
+        if (request.getLogoFile() != null && !request.getLogoFile().isEmpty()) {
+            try {
+                String newImageUrl = cloudinaryService.uploadImage(request.getLogoFile());
+                danhMuc.setLogo(newImageUrl);
+            } catch (IOException e) {
+                throw new CustomException("Lỗi upload ảnh Danh mục", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+        
+        DanhMuc updatedDm = danhMucRepository.save(danhMuc);
         return new DanhMucResponse(updatedDm.getMaDM(), updatedDm.getTenDM(),updatedDm.getLogo());
     }
 

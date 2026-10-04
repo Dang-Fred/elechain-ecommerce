@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# BỎ QUA FILE CHỨA MÃ BẢO MẬT 
+src/main/resources/application-secret.properties

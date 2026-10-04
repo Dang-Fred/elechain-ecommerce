@@ -31,19 +31,22 @@ public class DanhMucRestController {
     }
 
     // UC 22: Thêm mới
-    @PostMapping
-    public ResponseEntity<DanhMucResponse> createDanhMuc(@Valid @RequestBody DanhMucRequest request) {
+ // Đổi thành @ModelAttribute và consumes form-data
+    @PostMapping(consumes = {"multipart/form-data"})
+    public ResponseEntity<DanhMucResponse> createDanhMuc(@Valid @ModelAttribute DanhMucRequest request) {
         DanhMucResponse response = danhMucService.create(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     // UC 23: Cập nhật
-    @PutMapping("/{id}")
-    public ResponseEntity<DanhMucResponse> updateDanhMuc(@PathVariable Long id, @Valid @RequestBody DanhMucRequest request) {
+ // Tương tự cho hàm Update
+    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
+    public ResponseEntity<DanhMucResponse> updateDanhMuc(
+            @PathVariable Long id, 
+            @Valid @ModelAttribute DanhMucRequest request) { 
         DanhMucResponse response = danhMucService.update(id, request);
         return ResponseEntity.ok(response);
     }
-
     // UC 24: Xóa
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteDanhMuc(@PathVariable Long id) {
@@ -51,3 +54,9 @@ public class DanhMucRestController {
         return ResponseEntity.ok("Xóa danh mục thành công");
     }
 }
+
+
+
+
+
+
