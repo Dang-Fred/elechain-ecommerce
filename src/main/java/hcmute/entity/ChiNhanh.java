@@ -20,6 +20,9 @@ public class ChiNhanh {
     private String tenCN;
     private String diaChi;
     private String hotline;
+    
+    @Column(name = "TrangThai")
+    private Boolean trangThai = true;
 
     @OneToMany(mappedBy = "chiNhanh", fetch = FetchType.LAZY)
     @JsonIgnore
