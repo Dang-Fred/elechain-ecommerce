@@ -1,6 +1,7 @@
 // File: SanPhamServiceImpl.java
 package hcmute.service.impl;
 import hcmute.dto.request.SanPhamRequest;
+
 import hcmute.dto.response.SanPhamResponse;
 import hcmute.entity.DanhMuc;
 import hcmute.entity.HangSX;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.*;
 
 import java.io.IOException;
 
@@ -123,4 +125,64 @@ public class SanPhamServiceImpl implements SanPhamService {
                 sanPham.getLogo()
         );
     }
+    
+
+    @Override
+    public List<SanPhamResponse> getSanPhams(String role, Long maCN) {
+        java.util.List<SanPham> sanPhams;
+        String normalizedRole = role != null ? role.toUpperCase() : "";
+
+        if ("ADMIN".equals(normalizedRole)) {
+            // ADMIN: Lấy tất cả hệ thống
+            sanPhams = sanPhamRepository.findAll();
+            
+        } else if (java.util.Arrays.asList("QUAN_LY_CHI_NHANH", "NHAN_VIEN", "NHAN_VIEN_KHO").contains(normalizedRole)) {
+            // KHU VỰC: Bắt buộc kiểm tra maCN
+            if (maCN == null) {
+                throw new CustomException("Nhân viên chi nhánh bắt buộc phải cung cấp X-Branch-Id", HttpStatus.BAD_REQUEST);
+            }
+            sanPhams = sanPhamRepository.findActiveByChiNhanh(maCN);
+            
+        } else {
+            // SAI ROLE: Báo lỗi 403 Forbidden
+            throw new CustomException("Role không hợp lệ hoặc không có quyền truy cập", HttpStatus.FORBIDDEN);
+        }
+
+        // Dùng hàm mapToResponse (đã có sẵn ở 1.3a) để chuyển đổi
+        return sanPhams.stream()
+                .map(this::mapToResponse)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void softDelete(Long id) {
+        SanPham sanPham = sanPhamRepository.findByMaSPAndTrangThai(id, "true")
+                .orElseThrow(() -> new CustomException("Không tìm thấy sản phẩm hoặc sản phẩm đã bị ẩn/ngừng kinh doanh", HttpStatus.NOT_FOUND));
+
+        // Ẩn sản phẩm
+        sanPham.setTrangThai("false");
+        sanPhamRepository.save(sanPham);
+    }
+    
+    @Override
+    @Transactional
+    public void restore(Long id) {
+        // Dùng findById mặc định để tìm được cả những sản phẩm đang có trangThai = "false"
+        SanPham sanPham = sanPhamRepository.findById(id)
+                .orElseThrow(() -> new CustomException("Không tìm thấy sản phẩm", HttpStatus.NOT_FOUND));
+
+        // Kiểm tra xem nó có đang hiển thị sẵn không
+        if ("true".equals(sanPham.getTrangThai())) {
+            throw new CustomException("Sản phẩm này vẫn đang hiển thị kinh doanh, không cần khôi phục!", HttpStatus.BAD_REQUEST);
+        }
+
+        // Bật lại trạng thái hiển thị
+        sanPham.setTrangThai("true");
+        sanPhamRepository.save(sanPham);
+    }
+    
+    
+    
+    
 }

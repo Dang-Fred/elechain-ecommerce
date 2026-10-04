@@ -33,4 +33,32 @@ public class SanPhamRestController {
         SanPhamResponse response = sanPhamService.update(id, request);
         return ResponseEntity.ok(response);
     }
+    
+    @GetMapping
+    public ResponseEntity<java.util.List<SanPhamResponse>> getSanPhams(
+            @RequestHeader(value = "X-Role", required = true) String role,
+            @RequestHeader(value = "X-Branch-Id", required = false) Long maCN) {
+        
+        return ResponseEntity.ok(sanPhamService.getSanPhams(role, maCN));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> softDeleteSanPham(@PathVariable Long id) {
+        sanPhamService.softDelete(id);
+        return ResponseEntity.ok("Đã ẩn sản phẩm (ngừng kinh doanh) thành công");
+    }
+    
+    
+    @PutMapping("/{id}/restore")
+    public ResponseEntity<String> restoreSanPham(@PathVariable Long id) {
+        sanPhamService.restore(id);
+        return ResponseEntity.ok("Khôi phục hiển thị sản phẩm thành công");
+    }
+    
+    
+    
+    
+    
+    
+    
 }
