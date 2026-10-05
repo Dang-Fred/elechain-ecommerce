@@ -49,7 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String role = jwtUtil.extractRole(jwtToken); 
                 
                 // Spring Security chuẩn thường yêu cầu prefix "ROLE_"
-                SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
+                SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role);
                 
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userEmail, null, Collections.singletonList(authority)
