@@ -82,4 +82,8 @@ public class JwtUtil {
                 .parseSignedClaims(token)
                 .getPayload(); // Bản 0.12.x dùng getPayload() thay cho getBody()
     }
+    
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
+    }
 }
