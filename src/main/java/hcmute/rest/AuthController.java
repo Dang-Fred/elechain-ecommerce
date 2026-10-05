@@ -1,6 +1,9 @@
 // File: AuthController.java
 package hcmute.rest;
 
+import hcmute.dto.request.LoginRequestDTO;
+import hcmute.dto.response.LoginResponseDTO;
+import hcmute.service.AuthService;
 import hcmute.dto.request.RegisterRequestDTO;
 import hcmute.dto.request.VerifyOtpRequestDTO;
 import hcmute.entity.KhachHang;
@@ -10,6 +13,7 @@ import hcmute.service.OtpService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,6 +38,9 @@ public class AuthController {
     
     @Autowired
     private PasswordEncoder passwordEncoder; // Inject Bean BCrypt
+    
+    @Autowired
+    private AuthService authService;
 
     @PostMapping("/register/send-otp")
     public ResponseEntity<?> sendOtpRegister(@Valid @RequestBody RegisterRequestDTO request) {
@@ -125,5 +132,50 @@ public class AuthController {
             
     }
        
+    
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDTO request) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            LoginResponseDTO loginData = authService.login(request);
+            
+            response.put("success", true);
+            response.put("message", "Đăng nhập thành công");
+            response.put("data", loginData);
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            String errorMessage = e.getMessage();
+            
+            // Phân loại HTTP Status dựa trên prefix từ Service
+            if (errorMessage.startsWith("FORBIDDEN:")) {
+                response.put("message", errorMessage.split(":")[1]);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response); // 403
+            } else {
+                response.put("message", errorMessage.split(":")[1]);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response); // 401
+            }
+        }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        Map<String, Object> response = new HashMap<>();
+        
+        // Với JWT Stateless, Server không lưu session. 
+        // Đăng xuất chủ yếu là ra lệnh cho Client tự xóa Token.
+        response.put("success", true);
+        response.put("message", "Đăng xuất thành công. Client vui lòng xóa token ở LocalStorage.");
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    
+    
+    
+    
+    
     
 }
