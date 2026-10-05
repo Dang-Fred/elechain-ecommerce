@@ -46,6 +46,7 @@ public class SecurityConfig {
             // 4. Phân quyền Request
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll() // Mở cửa toàn bộ cho luồng Đăng nhập/Đăng ký
+                .requestMatchers( "/api/admin/login").permitAll()             
                 .requestMatchers("/error").permitAll()       //Mở cửa cho cơ chế báo lỗi của Spring Boot
                 .anyRequest().authenticated()                // Các endpoint còn lại bắt buộc phải có xác thực
             )
