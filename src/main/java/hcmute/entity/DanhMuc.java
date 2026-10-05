@@ -17,6 +17,7 @@ public class DanhMuc {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long maDM;
 
+    @Column(name = "tendm", columnDefinition = "NVARCHAR(255)")
     private String tenDM;
     
     @Column(name = "Logo", columnDefinition = "NVARCHAR(MAX)")

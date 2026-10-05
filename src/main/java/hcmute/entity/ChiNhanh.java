@@ -16,8 +16,11 @@ public class ChiNhanh {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long maCN;
-
+    
+    @Column(name = "tencn", columnDefinition = "NVARCHAR(255)")
     private String tenCN;
+    
+    @Column(name = "dia_chi", columnDefinition = "nvarchar(MAX)")
     private String diaChi;
     private String hotline;
     
@@ -28,3 +31,4 @@ public class ChiNhanh {
     @JsonIgnore
     private List<NhanVien> nhanViens;
 }
+

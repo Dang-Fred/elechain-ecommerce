@@ -20,6 +20,7 @@ public class KhachHang {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long maKH;
 
+    @Column(name = "tenkh", columnDefinition = "NVARCHAR(255)")
     private String tenKH;
 
     // RBTV14 (Cập nhật): Email bắt buộc và duy nhất, dùng để đăng nhập

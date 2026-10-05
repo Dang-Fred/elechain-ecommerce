@@ -16,6 +16,7 @@ public class SanPham {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long maSP;
 
+    @Column(name = "tensp", columnDefinition = "NVARCHAR(255)")
     private String tenSP;
 
     @ManyToOne(fetch = FetchType.LAZY)

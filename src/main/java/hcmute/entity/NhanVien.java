@@ -15,6 +15,7 @@ public class NhanVien {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long maNV;
 
+    @Column(name = "tennv", columnDefinition = "NVARCHAR(255)")
     private String tenNV;
     private String soDienThoai;
     private String matKhau;
