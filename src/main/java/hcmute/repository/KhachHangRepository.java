@@ -13,4 +13,6 @@ public interface KhachHangRepository extends JpaRepository<KhachHang, Long> {
     
     // Thêm hàm này phục vụ luồng Đăng nhập
     Optional<KhachHang> findByEmail(String email);
+ 
+    Optional<KhachHang> findBySoDienThoai(String soDienThoai);
 }

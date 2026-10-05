@@ -33,7 +33,7 @@ public class KhachHang {
 
     private String matKhau;
     
-    // Cập nhật: Nullable (Khách hàng sẽ bổ sung sau)
+    @Column(name = "dia_chi", columnDefinition = "NVARCHAR(255)")
     private String diaChi;
     
     @Column(name = "Avatar", columnDefinition = "NVARCHAR(MAX)")
