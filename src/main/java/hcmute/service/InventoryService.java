@@ -55,11 +55,16 @@ public class InventoryService {
                 ctPhieuNhap.setSoLuongNhap(ctReq.getSoLuongNhap());
                 chiTietPhieuNhapRepository.save(ctPhieuNhap);
 
-                // Cập nhật Kho Hàng (Cộng dồn số lượng tồn)
+             // Cập nhật Kho Hàng (Cộng dồn số lượng tồn)
                 KhoHang khoHang = khoHangRepository.findById_MaSPAndId_MaCN(sanPham.getMaSP(), nhanVien.getChiNhanh().getMaCN())
                         .orElseGet(() -> {
                             KhoHang newKho = new KhoHang();
                             newKho.setId(new KhoHangKey(sanPham.getMaSP(), nhanVien.getChiNhanh().getMaCN()));
+                            
+                            // BỔ SUNG 2 DÒNG NÀY ĐỂ FIX LỖI (Gán Association cho Hibernate)
+                            newKho.setSanPham(sanPham);
+                            newKho.setChiNhanh(nhanVien.getChiNhanh());
+                            
                             newKho.setSoLuongTon(0);
                             return newKho;
                         });

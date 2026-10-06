@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/inventory")
-@PreAuthorize("hasAnyRole('NVK', 'ADMIN')") // RBTV17: Chỉ Nhân viên kho hoặc Admin mới được phép
+@PreAuthorize("hasAnyAuthority('NV_KHO', 'ADMIN', 'QLCN')")// RBTV17: Chỉ Nhân viên kho hoặc Admin, QLCN mới được phép
 @RequiredArgsConstructor
 public class InventoryController {
 
