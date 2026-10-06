@@ -2,6 +2,7 @@
 package hcmute.rest;
 
 import hcmute.dto.request.PhieuNhapRequest;
+import hcmute.dto.response.BranchStockResponse;
 import hcmute.dto.response.PhieuNhapResponse;
 import hcmute.service.InventoryService;
 import jakarta.validation.Valid;
@@ -46,4 +47,25 @@ public class InventoryController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    
+    @GetMapping("/check/{maSP}")
+    @PreAuthorize("permitAll()") // Ghi đè @PreAuthorize cấp class để mở Public API
+    public ResponseEntity<?> checkStock(@PathVariable Long maSP) {
+        try {
+            List<BranchStockResponse> branches = inventoryService.checkStockByProduct(maSP);
+            
+            if (branches.isEmpty()) {
+                return ResponseEntity.ok("Sản phẩm hiện đang tạm hết hàng tại tất cả các chi nhánh.");
+            }
+            return ResponseEntity.ok(branches);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Lỗi hệ thống khi tra cứu tồn kho: " + e.getMessage());
+        }
+    }
+    
+    
+    
+    
+    
+    
 }

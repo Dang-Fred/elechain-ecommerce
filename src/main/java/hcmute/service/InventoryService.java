@@ -2,6 +2,7 @@
 package hcmute.service;
 
 import hcmute.dto.request.ChiTietNhapRequest;
+import hcmute.dto.response.BranchStockResponse;
 import hcmute.dto.request.PhieuNhapRequest;
 import hcmute.dto.response.PhieuNhapResponse;
 import hcmute.entity.*;
@@ -101,4 +102,38 @@ public class InventoryService {
             return response;
         }).collect(Collectors.toList());
     }
+    
+    
+    public List<BranchStockResponse> checkStockByProduct(Long maSP) {
+        // Gọi repository với soLuongMin = 0 để lấy các chi nhánh CÒN HÀNG
+        List<KhoHang> khoHangList = khoHangRepository.findBySanPham_MaSPAndSoLuongTonGreaterThan(maSP, 0);
+
+        // Map dữ liệu từ Entity sang DTO
+        return khoHangList.stream().map(kho -> {
+            BranchStockResponse response = new BranchStockResponse();
+            response.setMaCN(kho.getChiNhanh().getMaCN());
+            response.setTenCN(kho.getChiNhanh().getTenCN());
+            response.setDiaChi(kho.getChiNhanh().getDiaChi());
+            response.setHotline(kho.getChiNhanh().getHotline());
+            response.setSoLuongTon(kho.getSoLuongTon());
+            return response;
+        }).collect(Collectors.toList());
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 }
