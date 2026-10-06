@@ -3,6 +3,9 @@ package hcmute.rest;
 import hcmute.dto.request.EmployeeCreateRequest;
 import hcmute.dto.request.EmployeeUpdateRequest;
 import hcmute.service.EmployeeService;
+import hcmute.dto.response.EmployeeResponse;
+import org.springframework.security.core.context.SecurityContextHolder;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -78,4 +81,39 @@ public class EmployeeController {
         response.put("message", "Đã xảy ra lỗi hệ thống: " + errorMessage);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
+    
+    @GetMapping
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'QLCN')")
+    public ResponseEntity<?> getEmployeeList() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // Lấy email từ SecurityContext của Spring 
+            String email = SecurityContextHolder.getContext().getAuthentication().getName();
+            
+            // Gọi Service
+            List<EmployeeResponse> list = employeeService.getEmployeeList(email);
+            
+            response.put("success", true);
+            response.put("message", "Lấy danh sách nhân viên thành công");
+            response.put("data", list);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return handleException(e, response); // Tái sử dụng hàm handleException có sẵn
+        }
+    }
+        
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+   
+    
+    
 }

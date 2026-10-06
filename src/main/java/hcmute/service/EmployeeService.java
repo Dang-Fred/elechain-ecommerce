@@ -1,11 +1,15 @@
 package hcmute.service;
 
 import hcmute.dto.request.EmployeeCreateRequest;
+
 import hcmute.dto.request.EmployeeUpdateRequest;
 import hcmute.entity.ChiNhanh;
 import hcmute.entity.NhanVien;
 import hcmute.repository.ChiNhanhRepository;
 import hcmute.repository.NhanVienRepository;
+import hcmute.dto.response.EmployeeResponse;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -97,4 +101,61 @@ public class EmployeeService {
         
         nhanVienRepository.save(nv);
     }
+    
+ // UC37: Lấy danh sách nhân viên theo phân quyền
+    public List<EmployeeResponse> getEmployeeList(String email) throws Exception {
+        // 1. Tìm nhân viên đang thực hiện request
+        NhanVien currentStaff = nhanVienRepository.findByEmail(email)
+                .orElseThrow(() -> new Exception("UNAUTHORIZED:Không tìm thấy thông tin tài khoản"));
+
+        String role = currentStaff.getVaiTro();
+        List<NhanVien> nhanVienList;
+
+        // 2. Phân luồng dữ liệu theo Role
+        if ("ADMIN".equalsIgnoreCase(role)) {
+            // ADMIN: Lấy tất cả
+            nhanVienList = nhanVienRepository.findAll();
+            
+        } else if ("QLCN".equalsIgnoreCase(role)) {
+            // QLCN: Bắt buộc phải thuộc 1 chi nhánh mới xem được
+            if (currentStaff.getChiNhanh() == null) {
+                throw new Exception("BAD_REQUEST:Quản lý chi nhánh này chưa được phân bổ về chi nhánh nào");
+            }
+            // Chỉ lấy nhân sự trong cùng chi nhánh
+            nhanVienList = nhanVienRepository.findByChiNhanh_MaCN(currentStaff.getChiNhanh().getMaCN());
+            
+        } else {
+            // Các role khác (NVBH, NVK...): Chặn trực tiếp (Dù Controller đã chặn, nhưng chặn thêm ở logic cho chắc cú)
+            throw new Exception("FORBIDDEN:Bạn không có quyền xem danh sách nhân sự");
+        }
+
+        // 3. Map Entity sang DTO để loại bỏ các trường nhạy cảm (như mật khẩu)
+        return nhanVienList.stream().map(nv -> {
+            EmployeeResponse dto = new EmployeeResponse();
+            dto.setMaNV(nv.getMaNV());
+            dto.setTenNV(nv.getTenNV());
+            dto.setEmail(nv.getEmail());
+            dto.setSoDienThoai(nv.getSoDienThoai());
+            dto.setVaiTro(nv.getVaiTro());
+            dto.setTrangThai(nv.getTrangThai());
+            
+            if (nv.getChiNhanh() != null) {
+                dto.setMaCN(nv.getChiNhanh().getMaCN());
+            }
+            return dto;
+        }).collect(Collectors.toList());
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 }
