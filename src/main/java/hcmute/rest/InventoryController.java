@@ -3,6 +3,7 @@ package hcmute.rest;
 
 import hcmute.dto.request.PhieuNhapRequest;
 import hcmute.dto.response.BranchStockResponse;
+import hcmute.dto.response.LowStockAlertResponse;
 import hcmute.dto.response.PhieuNhapResponse;
 import hcmute.service.InventoryService;
 import jakarta.validation.Valid;
@@ -63,7 +64,21 @@ public class InventoryController {
         }
     }
     
-    
+    @GetMapping("/alert")
+    @PreAuthorize("hasAnyAuthority('NV_KHO', 'ADMIN', 'QLCN')") // Tường minh quyền truy cập (kế thừa từ class)
+    public ResponseEntity<?> getLowStockAlert() {
+        try {
+            String email = SecurityContextHolder.getContext().getAuthentication().getName();
+            List<LowStockAlertResponse> alerts = inventoryService.getLowStockAlert(email);
+            
+            if (alerts.isEmpty()) {
+                return ResponseEntity.ok("Không có sản phẩm nào sắp hết hàng (Tất cả đều >= 5).");
+            }
+            return ResponseEntity.ok(alerts);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Lỗi hệ thống khi tải cảnh báo: " + e.getMessage());
+        }
+    }
     
     
     

@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import hcmute.dto.response.LowStockAlertResponse;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -121,7 +123,31 @@ public class InventoryService {
     }
     
     
-    
+    public List<LowStockAlertResponse> getLowStockAlert(String email) {
+        NhanVien nhanVien = nhanVienRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin nhân viên"));
+
+        if (nhanVien.getChiNhanh() == null) {
+            throw new RuntimeException("Nhân viên chưa được phân bổ về chi nhánh nào!");
+        }
+
+        final int ALERT_THRESHOLD = 5;
+
+        // Gọi repository lấy danh sách sản phẩm có số lượng tồn < 5
+        List<KhoHang> lowStockList = khoHangRepository.findLowStockByChiNhanh(
+                nhanVien.getChiNhanh().getMaCN(), ALERT_THRESHOLD);
+
+        // Map sang DTO
+        return lowStockList.stream().map(kho -> {
+            LowStockAlertResponse response = new LowStockAlertResponse();
+            response.setMaSP(kho.getSanPham().getMaSP());
+            response.setTenSP(kho.getSanPham().getTenSP());
+            response.setHinhAnh(kho.getSanPham().getLogo());
+            response.setGiaBan(kho.getSanPham().getGiaBan());
+            response.setSoLuongTon(kho.getSoLuongTon());
+            return response;
+        }).collect(Collectors.toList());
+    }
     
     
     
