@@ -22,4 +22,6 @@ public interface KhoHangRepository extends JpaRepository<KhoHang, KhoHangKey> {
     @Query("SELECT k FROM KhoHang k JOIN FETCH k.sanPham s WHERE k.chiNhanh.maCN = :maCN AND k.soLuongTon < :threshold ORDER BY k.soLuongTon ASC")
     List<KhoHang> findLowStockByChiNhanh(@Param("maCN") Long maCN, @Param("threshold") Integer threshold);
 
+    @Query("SELECT COALESCE(SUM(k.soLuongTon), 0) FROM KhoHang k WHERE k.id.maSP = :maSP")
+    Long getTotalTonKhoByMaSP(@Param("maSP") Long maSP);
 }
