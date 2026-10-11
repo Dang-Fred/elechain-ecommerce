@@ -1,7 +1,7 @@
 // File: SecurityConfig.java
 package hcmute.config;
 import hcmute.security.JwtAuthenticationFilter;
-
+import org.springframework.http.HttpMethod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,9 +48,10 @@ public class SecurityConfig {
             
             // 4. Phân quyền Request
             .authorizeHttpRequests(auth -> auth
+            	.requestMatchers(HttpMethod.GET, "/api/reviews/product/**").permitAll() //Mở public CHỈ CHO request mang method GET của API Đánh giá
             	.requestMatchers("/api/inventory/check/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll() // Mở cửa toàn bộ cho luồng Đăng nhập/Đăng ký
-                .requestMatchers( "/api/admin/login").permitAll()             
+                .requestMatchers( "/api/admin/login").permitAll()
                 .requestMatchers("/error").permitAll()       //Mở cửa cho cơ chế báo lỗi của Spring Boot
                 .anyRequest().authenticated()                // Các endpoint còn lại bắt buộc phải có xác thực
             )

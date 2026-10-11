@@ -36,4 +36,12 @@ public class GlobalExceptionHandler {
             errors.put(error.getField(), error.getDefaultMessage()));
         return new org.springframework.http.ResponseEntity<>(errors, org.springframework.http.HttpStatus.BAD_REQUEST);
     }
+    
+    @ExceptionHandler(IllegalReviewException.class)
+    public ResponseEntity<Map<String, String>> handleIllegalReviewException(IllegalReviewException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", ex.getMessage());
+        // Trả về 403 Forbidden vì user không có quyền thực hiện hành động này
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response); 
+    }
 }
