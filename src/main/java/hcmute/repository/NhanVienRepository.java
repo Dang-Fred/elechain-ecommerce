@@ -15,4 +15,6 @@ public interface NhanVienRepository extends JpaRepository<NhanVien, Long> {
     Optional<NhanVien> findBySoDienThoai(String soDienThoai);
     
     List<NhanVien> findByChiNhanh_MaCN(Long maCN);
+    
+    
 }

@@ -2,6 +2,8 @@
 package hcmute.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import hcmute.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
@@ -28,12 +30,34 @@ public class DonHang {
     private ChiNhanh chiNhanh;
 
     private LocalDateTime ngayDat;
+    
+    @Column(name = "phuong_thuc_nhan", columnDefinition = "NVARCHAR(255)")
     private String phuongThucNhan;
-    private String trangThai;
+    
+    @Column(name = "dia_chi_giao", columnDefinition = "NVARCHAR(255)")
+    private String diaChiGiao;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "trang_thai", columnDefinition = "NVARCHAR(255)")
+    private OrderStatus trangThai;
     
     private BigDecimal tongTien;
     
     @OneToMany(mappedBy = "donHang", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<ChiTietDonHang> chiTietDonHangs;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 }

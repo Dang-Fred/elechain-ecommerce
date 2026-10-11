@@ -4,6 +4,7 @@ package hcmute.service.impl;
 import hcmute.dto.request.CheckoutRequestDTO;
 import hcmute.dto.response.CheckoutResponseDTO;
 import hcmute.entity.*;
+import hcmute.enums.OrderStatus;
 import hcmute.exception.CustomException;
 import hcmute.exception.InsufficientBalanceException;
 import hcmute.exception.OutOfStockException;
@@ -65,8 +66,19 @@ public class OrderServiceImpl implements OrderService {
         donHang.setChiNhanh(chiNhanh);
         donHang.setNgayDat(LocalDateTime.now());
         donHang.setPhuongThucNhan(request.getPhuongThucNhan());
-        donHang.setTrangThai("Chờ duyệt");
+        donHang.setTrangThai(OrderStatus.PENDING);
         donHang.setTongTien(tongTien);
+        
+        if ("Giao tận nơi".equalsIgnoreCase(request.getPhuongThucNhan())) {
+            // Yêu cầu Validate: Nếu giao tận nơi thì không được để trống địa chỉ
+            if (request.getDiaChiGiao() == null || request.getDiaChiGiao().trim().isEmpty()) {
+                throw new CustomException("Vui lòng cung cấp địa chỉ giao hàng.", HttpStatus.BAD_REQUEST);
+            }
+            donHang.setDiaChiGiao(request.getDiaChiGiao());
+        } else {
+            // Nhận tại cửa hàng
+            donHang.setDiaChiGiao("Nhận tại cửa hàng: " + chiNhanh.getDiaChi());
+        }
         
         // Save để sinh maDH
         donHang = donHangRepository.save(donHang);
@@ -113,7 +125,7 @@ public class OrderServiceImpl implements OrderService {
                 donHang.getMaDH(),
                 donHang.getNgayDat(),
                 donHang.getPhuongThucNhan(),
-                donHang.getTrangThai(),
+                donHang.getTrangThai().getDescription(), 
                 donHang.getTongTien()
         );
     }
