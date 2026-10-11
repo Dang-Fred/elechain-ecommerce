@@ -20,4 +20,7 @@ public interface GioHangRepository extends JpaRepository<GioHang, GioHangKey> {
     
     // Xóa sản phẩm khỏi giỏ hàng
     void deleteById_MaKHAndId_MaSP(Long maKH, Long maSP);
+    
+    // Dọn sạch toàn bộ giỏ hàng của khách sau khi thanh toán thành công
+    void deleteByKhachHang_MaKH(Long maKH);
 }

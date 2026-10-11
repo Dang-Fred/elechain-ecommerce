@@ -2,7 +2,10 @@ package hcmute.repository;
 
 import hcmute.entity.KhoHang;
 import hcmute.entity.KhoHangKey;
+import jakarta.persistence.LockModeType;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -22,6 +25,12 @@ public interface KhoHangRepository extends JpaRepository<KhoHang, KhoHangKey> {
     @Query("SELECT k FROM KhoHang k JOIN FETCH k.sanPham s WHERE k.chiNhanh.maCN = :maCN AND k.soLuongTon < :threshold ORDER BY k.soLuongTon ASC")
     List<KhoHang> findLowStockByChiNhanh(@Param("maCN") Long maCN, @Param("threshold") Integer threshold);
 
+    // Tong ton kho
     @Query("SELECT COALESCE(SUM(k.soLuongTon), 0) FROM KhoHang k WHERE k.id.maSP = :maSP")
     Long getTotalTonKhoByMaSP(@Param("maSP") Long maSP);
+    
+    // Khóa bi quan (Pessimistic Write) để chống Race Condition khi Checkout
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT k FROM KhoHang k WHERE k.id.maSP = :maSP AND k.id.maCN = :maCN")
+    Optional<KhoHang> findByIdWithPessimisticLock(@Param("maSP") Long maSP, @Param("maCN") Long maCN);
 }
