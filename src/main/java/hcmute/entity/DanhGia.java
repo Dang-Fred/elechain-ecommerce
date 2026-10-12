@@ -26,6 +26,11 @@ public class DanhGia {
     @MapsId("maSP")
     @JoinColumn(name = "ma_sp")
     private SanPham sanPham;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("maDH") 
+    @JoinColumn(name = "ma_dh")
+    private DonHang donHang;
 
     @Min(value = 1, message = "Số sao tối thiểu là 1")
     @Max(value = 5, message = "Số sao tối đa là 5")

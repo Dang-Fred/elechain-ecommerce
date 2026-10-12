@@ -14,4 +14,5 @@ import java.io.Serializable;
 public class DanhGiaKey implements Serializable {
     private Long maKH;
     private Long maSP;
+    private Long maDH;
 }

@@ -5,6 +5,7 @@ import hcmute.dto.request.ReviewRequestDTO;
 import hcmute.dto.response.ReviewResponseDTO;
 import hcmute.entity.DanhGia;
 import hcmute.entity.DanhGiaKey;
+import hcmute.entity.DonHang;
 import hcmute.entity.KhachHang;
 import hcmute.entity.SanPham;
 import hcmute.enums.OrderStatus;
@@ -40,36 +41,53 @@ public class ReviewServiceImpl implements ReviewService {
         
         Long maKH = khachHang.getMaKH();
         Long maSP = request.getMaSP();
+        Long maDH = request.getMaDH();
 
-        // Bước 1: Xác thực mua hàng (Đơn hàng phải COMPLETED)
-        if (!donHangRepository.existsCompletedOrderByKhachHangAndSanPham(maKH, maSP, OrderStatus.COMPLETED)) {
-            // Ném Custom Exception theo đúng yêu cầu
-            throw new IllegalReviewException("Bạn chưa mua sản phẩm này hoặc đơn hàng chưa hoàn thành.");
+        // 1. Tìm đơn hàng và kiểm tra quyền sở hữu
+        DonHang donHang = donHangRepository.findById(maDH)
+                .orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng.", HttpStatus.NOT_FOUND));
+
+        if (!donHang.getKhachHang().getMaKH().equals(maKH)) {
+            throw new CustomException("Bạn không có quyền đánh giá đơn hàng của người khác.", HttpStatus.FORBIDDEN);
         }
 
-        // Bước 2: Chống Spam đánh giá
-        if (danhGiaRepository.existsById_MaKHAndId_MaSP(maKH, maSP)) {
-            throw new CustomException("Bạn đã đánh giá sản phẩm này rồi.", HttpStatus.BAD_REQUEST);
+     // 2. Kiểm tra trạng thái đơn hàng
+        if (donHang.getTrangThai() != OrderStatus.COMPLETED) {
+            throw new IllegalReviewException("Chỉ có thể đánh giá khi đơn hàng đã hoàn thành.");
+        }
+        
+     // 3. Kiểm tra sản phẩm có nằm trong đơn hàng này không
+        boolean hasProduct = donHang.getChiTietDonHangs().stream()
+                .anyMatch(ct -> ct.getSanPham().getMaSP().equals(maSP));
+        
+        if (!hasProduct) {
+            throw new IllegalReviewException("Sản phẩm này không nằm trong đơn hàng của bạn.");
+        }
+
+        // 4. Chống Spam: Trong cùng 1 đơn hàng, 1 sản phẩm chỉ được đánh giá 1 lần
+        DanhGiaKey key = new DanhGiaKey(maKH, maSP, maDH);
+        if (danhGiaRepository.existsById(key)) {
+            throw new CustomException("Bạn đã đánh giá sản phẩm này trong đơn hàng " + maDH + " rồi.", HttpStatus.BAD_REQUEST);
         }
 
         SanPham sanPham = sanPhamRepository.findById(maSP)
                 .orElseThrow(() -> new CustomException("Không tìm thấy sản phẩm.", HttpStatus.NOT_FOUND));
 
-        // Bước 3: Ghi dữ liệu
+        // 5. Khởi tạo và Lưu dữ liệu
         DanhGia danhGia = new DanhGia();
-        danhGia.setId(new DanhGiaKey(maKH, maSP));
+        danhGia.setId(key);
         danhGia.setKhachHang(khachHang);
         danhGia.setSanPham(sanPham);
+        danhGia.setDonHang(donHang); // SET thêm Đơn hàng
         danhGia.setSoSao(request.getSoSao());
         danhGia.setBinhLuan(request.getBinhLuan());
         danhGia.setNgayDG(LocalDateTime.now());
 
         danhGiaRepository.save(danhGia);
 
-        // Trả về DTO
         return new ReviewResponseDTO(
                 khachHang.getTenKH(),
-                khachHang.getAvatar(), // Giả sử bảng KhachHang có trường avatar
+                khachHang.getAvatar(),
                 danhGia.getSoSao(),
                 danhGia.getBinhLuan(),
                 danhGia.getNgayDG()

@@ -10,6 +10,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ReviewRequestDTO {
+	
+	@NotNull(message = "Mã đơn hàng không được để trống")
+    private Long maDH;
     
     @NotNull(message = "Mã sản phẩm không được để trống")
     private Long maSP;
