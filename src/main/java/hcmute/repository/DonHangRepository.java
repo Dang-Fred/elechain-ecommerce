@@ -3,6 +3,11 @@ package hcmute.repository;
 
 import hcmute.entity.DonHang;
 import hcmute.enums.OrderStatus;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import hcmute.dto.response.DoanhThuDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -39,8 +44,49 @@ public interface DonHangRepository extends JpaRepository<DonHang, Long> {
             @Param("trangThai") OrderStatus trangThai);
     
     
+ // Hàm 1: Thống kê doanh thu theo từng tháng trong năm (Admin - UC 36)
+    // Tự động map vào Constructor(Integer, BigDecimal) của DoanhThuDTO
+    @Query("SELECT new hcmute.dto.response.DoanhThuDTO(MONTH(d.ngayDat), SUM(d.tongTien)) " +
+           "FROM DonHang d " +
+           "WHERE d.trangThai = hcmute.enums.OrderStatus.COMPLETED " +
+           "AND YEAR(d.ngayDat) = :year " +
+           "GROUP BY MONTH(d.ngayDat) " +
+           "ORDER BY MONTH(d.ngayDat) ASC")
+    List<DoanhThuDTO> getDoanhThuTheoThangTrongNam(@Param("year") int year);
+
+    // Hàm 2: Thống kê doanh thu theo từng tháng trong năm của một chi nhánh cụ thể (UC 38)
+    @Query("SELECT new hcmute.dto.response.DoanhThuDTO(MONTH(d.ngayDat), SUM(d.tongTien)) " +
+           "FROM DonHang d " +
+           "WHERE d.trangThai = hcmute.enums.OrderStatus.COMPLETED " +
+           "AND d.chiNhanh.maCN = :maCN " +
+           "AND YEAR(d.ngayDat) = :year " +
+           "GROUP BY MONTH(d.ngayDat) " +
+           "ORDER BY MONTH(d.ngayDat) ASC")
+    List<DoanhThuDTO> getDoanhThuTheoThangCuaChiNhanh(@Param("year") int year, @Param("maCN") Long maCN);
+
+    // Hàm 3: Thống kê tổng doanh thu toàn chuỗi chia theo từng chi nhánh trong 1 khoảng thời gian (UC 37)
+    // Tự động map vào Constructor(String, BigDecimal) của DoanhThuDTO
+    @Query("SELECT new hcmute.dto.response.DoanhThuDTO(d.chiNhanh.tenCN, SUM(d.tongTien)) " +
+           "FROM DonHang d " +
+           "WHERE d.trangThai = hcmute.enums.OrderStatus.COMPLETED " +
+           "AND d.ngayDat >= :startDate AND d.ngayDat <= :endDate " +
+           "GROUP BY d.chiNhanh.maCN, d.chiNhanh.tenCN " +
+           "ORDER BY SUM(d.tongTien) DESC")
+    List<DoanhThuDTO> getDoanhThuChiaTheoChiNhanh(@Param("startDate") LocalDateTime startDate, 
+                                                  @Param("endDate") LocalDateTime endDate);
     
-    
-    
+ // --- CÁC HÀM TÍNH TỔNG QUAN (ADMIN TOÀN HỆ THỐNG) ---
+    @Query("SELECT COUNT(d.maDH) FROM DonHang d WHERE d.trangThai = hcmute.enums.OrderStatus.COMPLETED")
+    Long countTotalOrders();
+
+    @Query("SELECT COALESCE(SUM(d.tongTien), 0) FROM DonHang d WHERE d.trangThai = hcmute.enums.OrderStatus.COMPLETED")
+    BigDecimal sumTotalRevenue();
+
+    // --- CÁC HÀM TÍNH TỔNG QUAN (CHO QUẢN LÝ CHI NHÁNH) ---
+    @Query("SELECT COUNT(d.maDH) FROM DonHang d WHERE d.trangThai = hcmute.enums.OrderStatus.COMPLETED AND d.chiNhanh.maCN = :maCN")
+    Long countTotalOrdersByChiNhanh(@Param("maCN") Long maCN);
+
+    @Query("SELECT COALESCE(SUM(d.tongTien), 0) FROM DonHang d WHERE d.trangThai = hcmute.enums.OrderStatus.COMPLETED AND d.chiNhanh.maCN = :maCN")
+    BigDecimal sumTotalRevenueByChiNhanh(@Param("maCN") Long maCN);
     
 }
