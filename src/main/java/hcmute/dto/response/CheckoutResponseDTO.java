@@ -15,6 +15,8 @@ public class CheckoutResponseDTO {
     private Long maDH;
     private LocalDateTime ngayDat; 
     private String phuongThucNhan;
+    private String diaChiGiao;
     private String trangThai;
     private BigDecimal tongTien;
+    
 }

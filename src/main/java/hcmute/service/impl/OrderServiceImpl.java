@@ -125,6 +125,7 @@ public class OrderServiceImpl implements OrderService {
                 donHang.getMaDH(),
                 donHang.getNgayDat(),
                 donHang.getPhuongThucNhan(),
+                donHang.getDiaChiGiao(),
                 donHang.getTrangThai().getDescription(), 
                 donHang.getTongTien()
         );
