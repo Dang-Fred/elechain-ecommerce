@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout-admin}">
+<head>
+    <title>Đăng nhập Quản trị</title>
+</head>
+<body>
+
+<div layout:fragment="content" class="d-flex justify-content-center align-items-center flex-grow-1" style="padding: 40px 0;">
+    
+    <!-- Thẻ Split Card -->
+    <div class="card border-0 shadow-lg overflow-hidden" style="max-width: 900px; width: 100%; border-radius: 20px;">
+        <div class="row g-0">
+            
+            <!-- CỘT TRÁI: Khu vực Branding (Chỉ hiện trên màn hình to) -->
+            <div class="col-md-5 d-none d-md-flex flex-column justify-content-center align-items-center text-white position-relative" 
+                 style="background: linear-gradient(135deg, #0d6efd 0%, #0043a8 100%); overflow: hidden;">
+                
+                <!-- Hình học trang trí bằng CSS (Không cần load ảnh) -->
+                <div class="position-absolute" style="top: -50px; left: -50px; width: 250px; height: 250px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+                <div class="position-absolute" style="bottom: -80px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
+                
+                <i class="fa-solid fa-shield-halved fa-5x mb-4 z-1 shadow-sm" style="color: #e0eafc;"></i>
+                <h3 class="fw-bold z-1 mb-1 tracking-wide">ELECHAIN</h3>
+                <h6 class="z-1 opacity-75 fw-normal letter-spacing-1 mb-4">WORKSPACE</h6>
+                
+                <p class="text-center px-4 z-1 opacity-75 small" style="line-height: 1.6;">
+                    Hệ thống quản lý nội bộ dành riêng cho Quản trị viên và Quản lý Chi nhánh.
+                </p>
+            </div>
+            
+            <!-- CỘT PHẢI: Form Đăng nhập -->
+            <div class="col-md-7 bg-white p-5">
+                <div class="mb-4 text-center text-md-start">
+                    <h3 class="fw-bold text-primary mb-2">Đăng nhập</h3>
+                    <p class="text-muted small">Mừng bạn quay trở lại hệ thống!</p>
+                </div>
+
+                <!-- Vùng hiển thị lỗi -->
+                <div id="login-error" class="alert alert-danger d-none small" role="alert"></div>
+                
+                <form id="admin-login-form">
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold text-secondary small">Email làm việc</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-envelope text-muted"></i></span>
+                            <input type="email" class="form-control bg-light border-start-0 fs-6" id="email" required placeholder="admin@elechain.com">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-5">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-semibold text-secondary small mb-0">Mật khẩu hệ thống</label>
+                            <a href="#" class="text-decoration-none small">Quên mật khẩu?</a>
+                        </div>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-lock text-muted"></i></span>
+                            <input type="password" class="form-control bg-light border-start-0 fs-6" id="password" required placeholder="••••••••">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" id="submit-btn" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" style="border-radius: 12px;">
+                        Truy cập Dashboard <i class="fa-solid fa-arrow-right ms-2"></i>
+                    </button>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<script layout:fragment="custom-js">
+    document.getElementById('admin-login-form').addEventListener('submit', function (event) {
+        event.preventDefault(); 
+        
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const submitBtn = document.getElementById("submit-btn");
+        const errorAlert = document.getElementById("login-error");
+
+        errorAlert.classList.add("d-none");
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang xác thực...';
+
+        fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: email, matKhau: password })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Sai thông tin đăng nhập hoặc không có quyền truy cập!");
+            return response.json();
+        })
+        .then(data => {
+            if (data && data.token) {
+                document.cookie = `jwt_token=${data.token}; max-age=86400; path=/; samesite=strict`;
+                window.location.href = "/admin/dashboard";
+            }
+        })
+        .catch(error => {
+            errorAlert.innerText = error.message;
+            errorAlert.classList.remove("d-none");
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Truy cập Dashboard <i class="fa-solid fa-arrow-right ms-2"></i>';
+        });
+    });
+</script>
+
+</body>
+</html>

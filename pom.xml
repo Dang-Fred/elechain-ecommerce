@@ -144,6 +144,12 @@
     		<version>0.12.5</version>
     		<scope>runtime</scope>
 		</dependency>
+		
+		<!-- Thymeleaf Layout Dialect (Quản lý Master Page) -->
+<dependency>
+    <groupId>nz.net.ultraq.thymeleaf</groupId>
+    <artifactId>thymeleaf-layout-dialect</artifactId>
+</dependency>
 
 	</dependencies>
 

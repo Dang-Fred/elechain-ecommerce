@@ -1,0 +1,26 @@
+package hcmute.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class HomeController {
+
+    // Cổng Khách hàng
+    @GetMapping("/login")
+    public String showClientLogin() {
+        return "auth/login-client";
+    }
+
+    // Cổng Quản trị Admin
+    @GetMapping("/admin/login")
+    public String showAdminLogin() {
+        return "auth/login-admin";
+    }
+
+    // Trang chủ tạm thời
+    @GetMapping("/")
+    public String showHomePage() {
+        return "redirect:/login"; 
+    }
+}

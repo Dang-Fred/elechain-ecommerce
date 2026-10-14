@@ -1,0 +1,80 @@
+:root {
+    --h-black: #111111;
+    --h-purple: #2b003a;
+    --h-orange: #f26222;
+    --h-orange-glow: rgba(242, 98, 34, 0.6);
+    --h-text: #e0e0e0;
+}
+
+body.halloween-theme {
+    background-color: var(--h-black);
+    color: var(--h-text);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow-x: hidden;
+}
+
+/* Navbar */
+.h-navbar {
+    background-color: var(--h-purple) !important;
+    border-bottom: 2px solid var(--h-orange);
+    box-shadow: 0 4px 12px var(--h-orange-glow);
+}
+.h-navbar .navbar-brand, .h-navbar .nav-link {
+    color: var(--h-orange) !important;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px #000;
+}
+.h-navbar .nav-link:hover {
+    color: #fff !important;
+    text-shadow: 0 0 8px var(--h-orange);
+}
+
+/* Form Khách hàng */
+.h-card {
+    background-color: #1a1a1a;
+    border: 1px solid var(--h-orange);
+    box-shadow: 0 0 20px var(--h-orange-glow);
+    border-radius: 12px;
+}
+.h-card .card-header {
+    background-color: var(--h-purple);
+    border-bottom: 1px solid var(--h-orange);
+    color: var(--h-orange);
+    text-align: center;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+.h-input {
+    background-color: #222;
+    border: 1px solid #444;
+    color: #fff;
+}
+.h-input:focus {
+    background-color: #333;
+    border-color: var(--h-orange);
+    box-shadow: 0 0 8px var(--h-orange-glow);
+    color: #fff;
+}
+.h-btn {
+    background-color: var(--h-orange);
+    color: #000;
+    font-weight: bold;
+    border: none;
+    transition: all 0.3s ease;
+}
+.h-btn:hover {
+    background-color: #ff7b42;
+    box-shadow: 0 0 15px var(--h-orange-glow);
+    color: #fff;
+}
+
+/* Animations */
+@keyframes floatAnimation {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0px); }
+}
+.floating-element {
+    animation: floatAnimation 4s ease-in-out infinite;
+}
