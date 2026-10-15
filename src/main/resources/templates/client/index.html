@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout-client}">
+<head>
+    <title>Trang chủ | Elechain Store</title>
+</head>
+<body>
+
+<main layout:fragment="content">
+    
+    <!-- Hero Carousel (Banner) -->
+    <div class="container-fluid carousel bg-light px-0">
+        <div class="row g-0 justify-content-end">
+            <div class="col-12">
+                <div class="header-carousel owl-carousel bg-light py-5">
+                    <div class="row g-0 header-carousel-item align-items-center">
+                        <div class="col-xl-6 carousel-img wow fadeInLeft" data-wow-delay="0.1s">
+                            <!-- Đã sửa ảnh Banner lấy từ Template gốc -->
+                            <img th:src="@{/electro/img/carousel-1.png}" class="img-fluid w-100" alt="Banner 1">
+                        </div>
+                        <div class="col-xl-6 carousel-content p-4">
+                            <h4 class="text-uppercase fw-bold mb-4 wow fadeInRight" data-wow-delay="0.1s" style="letter-spacing: 3px;">Siêu Sale Công Nghệ</h4>
+                            <h1 class="display-3 text-capitalize mb-4 wow fadeInRight" data-wow-delay="0.3s">Giảm tới 40% Smartphone & Laptop</h1>
+                            <a class="btn btn-primary rounded-pill py-3 px-5 wow fadeInRight" data-wow-delay="0.7s" href="#">Mua ngay</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danh sách sản phẩm (Dùng dữ liệu THẬT từ Database) -->
+    <div class="container-fluid product py-5">
+        <div class="container py-5">
+            <div class="mx-auto text-center mb-5" style="max-width: 900px;">
+                <h4 class="text-primary border-bottom border-primary border-2 d-inline-block p-2 title-border-radius wow fadeInUp" data-wow-delay="0.1s">Sản Phẩm</h4>
+                <h1 class="mb-0 display-3 wow fadeInUp" data-wow-delay="0.3s">Sản Phẩm Mới Nhất</h1>
+            </div>
+            
+            <div class="row g-4">
+                <!-- Vòng lặp lấy sản phẩm từ Controller -->
+                <div class="col-md-6 col-lg-4 col-xl-3" th:each="sp : ${listSanPham}">
+                    <div class="product-item rounded wow fadeInUp" data-wow-delay="0.1s">
+                        <div class="product-item-inner border rounded">
+                            <div class="product-item-inner-item">
+                                <!-- Hình ảnh: lấy từ thuộc tính logo -->
+                                <img th:src="${sp.logo}" class="img-fluid w-100 rounded-top" style="height: 250px; object-fit: contain; padding: 10px;" alt="Ảnh sản phẩm">
+                                <div class="product-new">Hot</div>
+                                <div class="product-details">
+                                    <!-- Xem chi tiết bằng mã SP -->
+                                    <a th:href="@{/product/{id}(id=${sp.maSP})}"><i class="fa fa-eye fa-1x"></i></a>
+                                </div>
+                            </div>
+                            <div class="text-center rounded-bottom p-4">
+                                <!-- Tên danh mục -->
+                                <a th:href="@{/product/{id}(id=${sp.maSP})}" class="d-block mb-2 text-muted" th:text="${sp.tenDM}">Danh mục</a>
+                                
+                                <!-- Tên sản phẩm -->
+                                <a th:href="@{/product/{id}(id=${sp.maSP})}" class="d-block h4 text-truncate" th:title="${sp.tenSP}" th:text="${sp.tenSP}">Tên sản phẩm</a>
+                                
+                                <!-- Giá sản phẩm -->
+                                <span class="text-primary fs-5 fw-bold" th:text="${#numbers.formatDecimal(sp.giaBan, 0, 'COMMA', 0, 'POINT')} + ' ₫'">10,000,000 ₫</span>
+                            </div>
+                        </div>
+                        <div class="product-item-add border border-top-0 rounded-bottom text-center p-4 pt-0">
+                            <!-- Truyền ID vào thuộc tính data để dành cho logic Giỏ Hàng sau này -->
+                            <a href="#" class="btn btn-primary border-secondary rounded-pill py-2 px-4 mb-4" th:attr="data-id=${sp.maSP}">
+                                <i class="fas fa-shopping-cart me-2"></i> Thêm vào giỏ
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Kết thúc vòng lặp -->
+            </div>
+            
+        </div>
+    </div>
+
+</main>
+
+</body>
+</html>

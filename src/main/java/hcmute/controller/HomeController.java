@@ -18,11 +18,11 @@ public class HomeController {
         return "auth/login-admin";
     }
 
-    // Trang chủ tạm thời
-    @GetMapping("/")
-    public String showHomePage() {
-        return "redirect:/login"; 
-    }
+//    // Trang chủ tạm thời
+//    @GetMapping("/")
+//    public String showHomePage() {
+//        return "redirect:/login"; 
+//    }
     
  // Cổng Đăng ký
     @GetMapping("/register")
