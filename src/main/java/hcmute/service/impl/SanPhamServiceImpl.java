@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.math.BigDecimal;
 import java.util.*;
 
 import java.io.IOException;
@@ -192,6 +193,23 @@ public class SanPhamServiceImpl implements SanPhamService {
 
         // Map từ Entity nặng sang DTO siêu nhẹ, vẫn giữ nguyên cấu trúc Page
         return sanPhams.map(sp -> new hcmute.dto.response.ProductPublicDTO(
+                sp.getMaSP(),
+                sp.getTenSP(),
+                sp.getLogo(),
+                sp.getGiaBan()
+        ));
+    }
+    
+    @Override
+    public Page<ProductPublicDTO> getPublicProducts(
+            String keyword, BigDecimal minPrice, BigDecimal maxPrice, Long maDM, Long maHang, Pageable pageable) {
+        
+        // Gọi truy vấn tìm kiếm và lọc từ DB
+        Page<SanPham> sanPhams = sanPhamRepository.findPublicProducts(
+                keyword, minPrice, maxPrice, maDM, maHang, pageable);
+
+        // Map sang DTO siêu nhẹ
+        return sanPhams.map(sp -> new ProductPublicDTO(
                 sp.getMaSP(),
                 sp.getTenSP(),
                 sp.getLogo(),
