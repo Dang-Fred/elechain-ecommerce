@@ -4,7 +4,7 @@
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const SVG_NS = 'http://www.w3.org/2000/svg';
   const sources = Array.from({ length: 60 }, (_, i) =>
-    `images/wolf-transparent/frame-${String(i).padStart(2, '0')}.png?v=1`
+    `/images/wolf-transparent/frame-${String(i).padStart(2, '0')}.png?v=1`
   );
   let ready = false;
   let active = false;

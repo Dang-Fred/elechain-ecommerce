@@ -83,8 +83,9 @@
                         <span>Gõ Cửa Vào Nhà</span> <img th:src="@{/images/icon-arrow.svg}" alt="" width="17" height="17" />
                     </button>
                     <p class="signup-row">
-                        <span>Bạn chưa có tài khoản?</span> <button class="text-action" id="signup" type="button">Đăng ký ngay</button>
-                    </p>
+    					<span>Bạn chưa có tài khoản?</span> 
+   							 <a th:href="@{/register}" class="text-action" style="text-decoration: none;">Đăng ký ngay</a>
+					</p>
                     <p class="status" id="status" role="status" aria-live="polite"></p>
                 </form>
             </section>

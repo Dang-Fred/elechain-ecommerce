@@ -1457,3 +1457,21 @@ h1, .signup-row, .status, .text-action, .field input::placeholder,
 .eye img  {
   transition: opacity 700ms ease, filter var(--theme-duration) var(--theme-easing);
 }
+
+/* --- GIAO DIỆN OTP BAN NGÀY --- */
+.otp-message {
+    color: #425f6b;
+    transition: color var(--theme-duration) var(--theme-easing);
+}
+.otp-email {
+    color: #176978;
+    transition: color var(--theme-duration) var(--theme-easing);
+}
+
+/* --- GIAO DIỆN OTP BAN ĐÊM (Trắng sáng) --- */
+body.night .otp-message {
+    color: #c1cbd2; /* Xám nhạt cho chữ thường */
+}
+body.night .otp-email {
+    color: #ffffff; /* Trắng tinh cho email để nổi bật */
+}

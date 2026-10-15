@@ -54,8 +54,8 @@ public class SecurityConfig {
                 .requestMatchers( "/api/admin/login").permitAll()
                 .requestMatchers("/error").permitAll()       //Mở cửa cho cơ chế báo lỗi của Spring Boot
                                                                  //  Mở cửa cho giao diện và file tĩnh
-                .requestMatchers("/", "/login", "/admin/login").permitAll()
-                .requestMatchers("/css/**", "/js/**", "/images/**", "/*.css", "/*.js", "/fonts/**").permitAll()
+                .requestMatchers("/", "/login", "/admin/login", "/register").permitAll()
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/*.css", "/*.js", "/fonts/**","/favicon.ico").permitAll()
                 
                 
                 

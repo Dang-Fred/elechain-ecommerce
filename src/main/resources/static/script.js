@@ -262,55 +262,66 @@
 
   themeButton.addEventListener('click', () => setNightMode(!nightMode));
 
-  document.getElementById('forgot-password').addEventListener('click', () => {
+  document.getElementById('forgot-password')?.addEventListener('click', () => {
     showStatus('resetStatus');
   });
 
-  document.getElementById('signup').addEventListener('click', () => {
+  document.getElementById('signup')?.addEventListener('click', () => {
     showStatus('signupStatus');
   });
 
-  document.getElementById('login-form').addEventListener('submit', (event) => {
-      event.preventDefault(); // Ngăn load lại trang
-      
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      const submitBtn = document.querySelector(".submit");
+  const loginForm = document.getElementById('login-form');
 
-      // Hiển thị trạng thái đang xử lý
-      statusMessage.style.color = "#a1e4e9";
-      statusMessage.textContent = "Đang gõ cửa...";
-      submitBtn.style.opacity = "0.7";
-      submitBtn.style.pointerEvents = "none";
+  // Bọc if để tránh lỗi null khi mở trang Admin (trang Admin dùng form ID khác)
+  if (loginForm) {
+      loginForm.addEventListener('submit', (event) => {
+          event.preventDefault(); // Ngăn load lại trang
+          
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+          const submitBtn = document.querySelector(".submit");
 
-      fetch("/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: email, matKhau: password })
-      })
-      .then(response => {
-          if (!response.ok) throw new Error("Thông tin đăng nhập sai!");
-          return response.json();
-      })
-      .then(data => {
-          if (data && data.token) {
-              // Lưu JWT vào Cookie
-              document.cookie = `jwt_token=${data.token}; max-age=86400; path=/; samesite=strict`;
-              statusMessage.textContent = "Thành công! Đang vào trang chủ...";
-              
-              // Redirect về trang chủ mua sắm
-              setTimeout(() => {
-                  window.location.href = "/";
-              }, 800);
-          }
-      })
-      .catch(error => {
-          statusMessage.style.color = "#ff6b6b";
-          statusMessage.textContent = error.message;
-          submitBtn.style.opacity = "1";
-          submitBtn.style.pointerEvents = "auto";
+          // Hiển thị trạng thái đang xử lý
+          statusMessage.style.color = "#a1e4e9";
+          statusMessage.textContent = "Đang gõ cửa...";
+          submitBtn.style.opacity = "0.7";
+          submitBtn.style.pointerEvents = "none";
+
+          fetch("/api/auth/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email: email, matKhau: password })
+          })
+          .then(response => {
+              if (!response.ok) throw new Error("Thông tin đăng nhập sai!");
+              return response.json();
+          })
+          .then(data => {
+              if (data && data.token) {
+                  // Lưu JWT vào Cookie
+                  document.cookie = `jwt_token=${data.token}; max-age=86400; path=/; samesite=strict`;
+                  statusMessage.textContent = "Thành công! Đang vào hệ thống...";
+                  
+                  // Redirect thông minh dựa trên URL hiện tại
+                  setTimeout(() => {
+                      if (window.location.pathname.includes("/admin")) {
+                          // Nếu đang ở cổng Admin -> Về Dashboard
+                          window.location.href = "/admin/dashboard";
+                      } else {
+                          // Nếu ở cổng Client -> Về Trang chủ
+                          window.location.href = "/";
+                      }
+                  }, 800);
+              }
+          })
+          .catch(error => {
+              statusMessage.style.color = "#ff6b6b";
+              statusMessage.textContent = error.message;
+              submitBtn.style.opacity = "1";
+              submitBtn.style.pointerEvents = "auto";
+          });
       });
-    });
+  }
   
   
   let vineNodes = [];

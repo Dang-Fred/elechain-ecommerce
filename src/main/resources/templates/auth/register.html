@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Đăng ký Tài khoản | Elechain Halloween</title>
+    
+    <!-- Nhúng CSS & JS của Template -->
+    <link rel="stylesheet" th:href="@{/style.css}" />
+    <script th:src="@{/resources.js}" defer></script>
+    <script th:src="@{/script.js}" defer></script>
+    <script th:src="@{/spider.js}" defer></script>
+    <script th:src="@{/wolf.js}" defer></script>
+    
+    <!-- Nhúng Script Xử lý Đăng ký -->
+    <script th:src="@{/js/register.js}" defer></script>
+</head>
+
+<body>
+    <!-- KHUNG CẢNH HALLOWEEN (Giữ nguyên tuyệt đối) -->
+    <div class="landscape-scene page-landscape" aria-hidden="true">
+        <img class="scene-land scene-day" th:src="@{/images/background-day.svg}" alt="" />
+        <img class="scene-land scene-night" th:src="@{/images/background-night.svg}" alt="" />
+        <div class="sky-flight" aria-hidden="true">
+            <span class="sky-bat bat-1"><span class="flyer-facing"><span data-svg="images/bat.svg"></span></span></span>
+            <span class="sky-bat bat-2"><span class="flyer-facing"><span data-svg="images/bat.svg"></span></span></span>
+            <span class="sky-bat bat-3"><span class="flyer-facing"><span data-svg="images/bat.svg"></span></span></span>
+            <span class="sky-bat bat-4"><span class="flyer-facing"><span data-svg="images/bat.svg"></span></span></span>
+            <span class="sky-bat bat-5"><span class="flyer-facing"><span data-svg="images/bat.svg"></span></span></span>
+            <span class="sky-bat bat-6"><span class="flyer-facing"><span data-svg="images/bat.svg"></span></span></span>
+            <span class="sky-witch"><span class="flyer-facing"><img th:src="@{/images/witch.svg}" alt="" width="3600" height="3400" draggable="false"></span></span>
+        </div>
+    </div>
+
+    <div class="login-shell">
+        <div class="halloween-vines" id="halloween-vines" aria-hidden="true"></div>
+        <main class="login-card" aria-labelledby="login-title">
+            <section class="scene-panel" aria-labelledby="welcome-title">
+                <div class="landscape-scene" aria-hidden="true">
+                    <div class="scene-sky-objects">
+                        <div class="scene-sun"></div>
+                        <div class="scene-moon"></div>
+                    </div>
+                    <img class="scene-land scene-day" th:src="@{/images/panel-day.svg}" alt="" />
+                    <img class="scene-land scene-night" th:src="@{/images/panel-night.svg}" alt="" />
+                    <div class="sky-flight" aria-hidden="true">
+                        <span class="sky-bat bat-1"><span class="flyer-facing"><span data-svg="images/bat.svg"></span></span></span>
+                        <span class="sky-bat bat-2"><span class="flyer-facing"><span data-svg="images/bat.svg"></span></span></span>
+                        <span class="sky-bat bat-3"><span class="flyer-facing"><span data-svg="images/bat.svg"></span></span></span>
+                    </div>
+                </div>
+                <div class="summit-stage" aria-hidden="true"></div>
+                <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false" aria-label="Bật đêm Halloween">
+                    <span class="theme-toggle-thumb" aria-hidden="true"></span>
+                    <span data-svg="images/icon-sun.svg" aria-hidden="true"></span>
+                    <span data-svg="images/icon-moon.svg" aria-hidden="true"></span>
+                </button>
+                <div class="scene-copy">
+                    <h2 id="welcome-title">GIA NHẬP HỘI</h2>
+                    <p>Trở thành thành viên Elechain để nhận các deal công nghệ giảm giá "sốc đến rợn gáy"!</p>
+                </div>
+            </section>
+
+            <section class="form-panel">
+                <!-- BƯỚC 1: NHẬP THÔNG TIN -->
+                <form class="login-form" id="register-step1">
+                    <h1 id="login-title">Đăng ký</h1>
+                    
+                    <div class="field">
+                        <label class="sr-only" for="tenKH">Tên hiển thị</label>
+                        <input id="tenKH" type="text" placeholder="Tên của bạn (VD: Nhật Phúc)" required />
+                    </div>
+                    
+                    <div class="field">
+                        <label class="sr-only" for="email">Email</label>
+                        <input id="email" type="email" placeholder="Email" required />
+                        <!-- Con cú theo dõi chuột -->
+                        <div class="email-owl" id="email-owl" aria-hidden="true">
+                            <span data-svg="images/owl.svg" aria-hidden="true"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="field password">
+                        <label class="sr-only" for="password">Mật khẩu</label>
+                        <input id="password" type="password" placeholder="Mật khẩu" required />
+                        <!-- Nút bật tắt đèn pin soi mật khẩu -->
+                        <button class="eye" id="show-password" type="button" aria-label="Hiện mật khẩu">
+                            <img th:src="@{/images/icon-eye.svg}" alt="" width="18" height="18" />
+                        </button>
+                    </div>
+                    
+                    <div class="field password">
+                        <label class="sr-only" for="confirmPassword">Xác nhận Mật khẩu</label>
+                        <input id="confirmPassword" type="password" placeholder="Xác nhận mật khẩu" required />
+                    </div>
+                    
+                    <button class="submit" type="submit" id="btn-step1" style="margin-top: 10px;">
+                        <span>Gửi mã OTP Xác thực</span> <img th:src="@{/images/icon-arrow.svg}" alt="" width="17" height="17" />
+                    </button>
+                    
+                    <p class="signup-row">
+                        <span>Đã có tài khoản?</span> <a th:href="@{/login}" class="text-action" style="text-decoration:none;">Gõ cửa (Đăng nhập)</a>
+                    </p>
+                    <p class="status" id="status-step1" role="status" aria-live="polite"></p>
+                </form>
+
+                <!-- BƯỚC 2: NHẬP OTP (Ẩn mặc định) -->
+                <form class="login-form" id="register-step2" style="display: none;">
+                    <h1 id="login-title">Xác thực OTP</h1>
+                    
+                    <p class="otp-message" style="font-size: 15px; text-align: center; margin-bottom: 30px;">
+    					Mã bảo mật 6 số đã được gửi đến hộp thư<br>
+    					<strong id="display-email" class="otp-email" style="font-size: 16px;"></strong>
+					</p>
+                    
+                    <div class="field">
+                        <label class="sr-only" for="otp">Mã OTP</label>
+                        <!-- Ô nhập OTP cách điệu -->
+                        <input id="otp" type="text" placeholder="------" required maxlength="6" 
+                               style="text-align: center; letter-spacing: 12px; font-weight: bold; font-size: 24px;" />
+                    </div>
+                    
+                    <button class="submit" type="submit" id="btn-step2" style="margin-top: 20px; background: linear-gradient(135deg, #d97b29, #b85d19);">
+                        <span>Hoàn Tất Đăng Ký</span> <img th:src="@{/images/icon-arrow.svg}" alt="" width="17" height="17" />
+                    </button>
+                    
+                    <div style="text-align: center; margin-top: 25px;">
+                        <button class="text-action" id="btn-back" type="button"><i class="fa-solid fa-arrow-left me-1"></i> Quay lại sửa Email</button>
+                    </div>
+                    <p class="status" id="status-step2" role="status" aria-live="polite"></p>
+                </form>
+
+            </section>
+        </main>
+    </div>
+
+    <!-- CÁC ELEMENT BỔ TRỢ HIỆU ỨNG CỦA THEME -->
+    <canvas id="halloween-spider" aria-hidden="true"></canvas>
+    <div class="flash-beam" id="flash-beam" aria-hidden="true"></div>
+    <div class="password-reveal" id="password-reveal" aria-hidden="true"><span id="reveal-text"></span></div>
+    <div class="flashlight" id="flashlight" aria-hidden="true"><img th:src="@{/images/flashlight.svg}" alt="" width="33" height="33" /></div>
+
+    <!-- FORM ẢO: Tránh lỗi console của file script.js -->
+    <form id="login-form" style="display:none;"></form>
+
+</body>
+</html>

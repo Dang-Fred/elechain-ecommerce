@@ -23,4 +23,10 @@ public class HomeController {
     public String showHomePage() {
         return "redirect:/login"; 
     }
+    
+ // Cổng Đăng ký
+    @GetMapping("/register")
+    public String showRegisterPage() {
+        return "auth/register";
+    }
 }

@@ -1,11 +1,13 @@
 const pageResources = (() => {
   'use strict';
 
+  // Khôi phục lại logic bắt môi trường gốc của template
   const local = location.protocol === 'file:';
   let embedded;
   const ready = local ? new Promise((resolve, reject) => {
     const script = document.createElement('script');
-    script.src = 'local-assets.js';
+    // FIX 1: Thêm '/' để ép tải từ gốc
+    script.src = '/local-assets.js'; 
     script.onload = () => {
       embedded = window.localArtwork;
       delete window.localArtwork;
@@ -26,13 +28,15 @@ const pageResources = (() => {
   async function text(path) {
     await ready;
     if (local) return embeddedValue(path);
-    const response = await fetch(path);
+    // FIX 2: Thêm '/' vào trước hàm fetch để luôn tải đúng hình SVG
+    const response = await fetch('/' + path);
     if (!response.ok) throw new Error(`Không tải được tài nguyên: ${path}`);
     return response.text();
   }
 
   function url(path) {
-    if (!local) return path;
+    // FIX 3: Thêm '/' vào url để CSS đọc đúng Font và Mask
+    if (!local) return '/' + path; 
     const value = embeddedValue(path);
     return value.startsWith('data:')
       ? value
