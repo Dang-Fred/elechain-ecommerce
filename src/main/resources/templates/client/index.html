@@ -52,14 +52,13 @@
                                 </div>
                             </div>
                             <div class="text-center rounded-bottom p-4">
-                                <!-- Tên danh mục -->
-                                <a th:href="@{/product/{id}(id=${sp.maSP})}" class="d-block mb-2 text-muted" th:text="${sp.tenDM}">Danh mục</a>
+                                <!-- ĐÃ XÓA DÒNG DANH MỤC Ở ĐÂY VÌ DTO KHÔNG CÓ tenDM -->
                                 
-                                <!-- Tên sản phẩm -->
-                                <a th:href="@{/product/{id}(id=${sp.maSP})}" class="d-block h4 text-truncate" th:title="${sp.tenSP}" th:text="${sp.tenSP}">Tên sản phẩm</a>
+                                <!-- Tên sản phẩm (Đổi mb-2 thành mb-3) -->
+                                <a th:href="@{/product/{id}(id=${sp.maSP})}" class="d-block h4 text-truncate mb-3" th:title="${sp.tenSP}" th:text="${sp.tenSP}">Tên sản phẩm</a>
                                 
-                                <!-- Giá sản phẩm -->
-                                <span class="text-primary fs-5 fw-bold" th:text="${#numbers.formatDecimal(sp.giaBan, 0, 'COMMA', 0, 'POINT')} + ' ₫'">10,000,000 ₫</span>
+                                <!-- Giá sản phẩm (Đổi ' ₫' thành ' VNĐ') -->
+                                <span class="text-primary fs-5 fw-bold" th:text="${#numbers.formatDecimal(sp.giaBan, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">10,000,000 VNĐ</span>
                             </div>
                         </div>
                         <div class="product-item-add border border-top-0 rounded-bottom text-center p-4 pt-0">
@@ -72,7 +71,42 @@
                 </div>
                 <!-- Kết thúc vòng lặp -->
             </div>
-            
+			
+			<!-- ĐÃ THÊM: THANH PHÂN TRANG (Pagination) -->
+            <!-- THANH PHÂN TRANG (Pagination) DÀN NGANG -->
+            <div class="col-12 mt-5" th:if="${totalPages > 1}">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination d-flex justify-content-center align-items-center mb-0" style="gap: 10px; flex-wrap: wrap;">
+                        
+                        <!-- Nút Trang trước (<) -->
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link d-flex justify-content-center align-items-center" th:href="@{/(page=${currentPage - 1})}" tabindex="-1" 
+                               style="width: 45px; height: 45px; border-radius: 0; border: 1px solid #dee2e6; color: #6c757d; text-decoration: none;">
+                                &lt;
+                            </a>
+                        </li>
+                        
+                        <!-- Vòng lặp các số trang (1, 2, 3...) -->
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+    						<a class="page-link d-flex justify-content-center align-items-center fw-bold" 
+     							  th:href="@{/(page=${i})}" th:text="${i + 1}" 
+     							  style="width: 45px; height: 45px; border-radius: 0; text-decoration: none; transition: all 0.3s;"
+      							 th:styleappend="${currentPage == i} ? 'background-color: var(--bs-primary); border: 1px solid var(--bs-primary); color: #fff;' : 'background-color: #fff; border: 1px solid #dee2e6; color: #6c757d;'">
+    						</a>
+						</li>
+                        
+                        <!-- Nút Trang sau (>) -->
+                        <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                            <a class="page-link d-flex justify-content-center align-items-center" th:href="@{/(page=${currentPage + 1})}" 
+                               style="width: 45px; height: 45px; border-radius: 0; border: 1px solid #dee2e6; color: #6c757d; text-decoration: none;">
+                                &gt;
+                            </a>
+                        </li>
+                        
+                    </ul>
+                </nav>
+            </div>
+            <!-- KẾT THÚC THANH PHÂN TRANG -->            
         </div>
     </div>
 

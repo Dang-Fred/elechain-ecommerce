@@ -46,5 +46,42 @@
     
     <!-- Script tùy biến riêng của từng trang -->
     <script layout:fragment="custom-js"></script>
+    
+    <!-- JS XỬ LÝ CHẾ ĐỘ SÁNG TỐI -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const toggleBtn = document.getElementById('theme-toggle');
+            const body = document.body;
+            
+            // 1. Kiểm tra bộ nhớ xem người dùng đang chọn chế độ nào
+            const currentTheme = localStorage.getItem('theme');
+            
+            // 2. Nếu là dark, bật class và đổi icon sang Mặt trời
+            if (currentTheme === 'dark') {
+                body.classList.add('dark-mode');
+                if(toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                if(toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+
+            // 3. Xử lý sự kiện bấm nút
+            if(toggleBtn) {
+                toggleBtn.addEventListener('click', function() {
+                    body.classList.toggle('dark-mode');
+                    let theme = 'light';
+                    
+                    if (body.classList.contains('dark-mode')) {
+                        theme = 'dark';
+                        toggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
+                    } else {
+                        toggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
+                    }
+                    
+                    // Lưu lại lựa chọn
+                    localStorage.setItem('theme', theme);
+                });
+            }
+        });
+    </script>
 </body>
 </html>

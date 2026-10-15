@@ -866,4 +866,74 @@
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     background: var(--bs-primary) !important;
 }
+
+/* ==========================================
+   GIAO DIỆN DARK MODE (ĐEN - CAM)
+   ========================================== */
+body.dark-mode {
+    background-color: #121212 !important;
+    color: #e0e0e0 !important;
+}
+
+/* Biến đổi các vùng nền trắng/sáng thành xám tối */
+body.dark-mode .bg-light,
+body.dark-mode .bg-white {
+    background-color: #1e1e1e !important;
+}
+
+/* Đổi màu chữ Tiêu đề và chữ đen thành trắng */
+body.dark-mode h1, body.dark-mode h2, body.dark-mode h3,
+body.dark-mode h4, body.dark-mode h5, body.dark-mode h6,
+body.dark-mode .text-dark,
+body.dark-mode a.text-dark {
+    color: #ffffff !important;
+}
+
+/* Đổi màu chữ phụ (muted) cho dễ đọc trên nền đen */
+body.dark-mode .text-muted {
+    color: #9e9e9e !important;
+}
+
+/* Làm chìm các đường viền (border) */
+body.dark-mode .border,
+body.dark-mode .border-bottom,
+body.dark-mode .border-end,
+body.dark-mode .border-start,
+body.dark-mode .border-top {
+    border-color: #333333 !important;
+}
+
+/* Xử lý riêng cho các thẻ Sản phẩm */
+body.dark-mode .product-item-inner,
+body.dark-mode .product-item-add,
+body.dark-mode .products-mini-item,
+body.dark-mode .products-mini-add {
+    background-color: #1e1e1e !important;
+}
+
+/* Xử lý Ô tìm kiếm & Form */
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+    background-color: #2d2d2d !important;
+    border-color: #444 !important;
+    color: #fff !important;
+}
+
+/* Menu thả xuống (Dropdown) */
+body.dark-mode .dropdown-menu {
+    background-color: #2d2d2d !important;
+    border-color: #444 !important;
+}
+body.dark-mode .dropdown-item {
+    color: #e0e0e0 !important;
+}
+body.dark-mode .dropdown-item:hover {
+    background-color: var(--bs-primary) !important;
+    color: #fff !important;
+}
+
+/* Hiệu ứng chuyển màu mượt mà */
+body, body *, .bg-light, .bg-white {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
 /*** copyright end ***/
