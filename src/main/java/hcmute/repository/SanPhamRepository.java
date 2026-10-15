@@ -16,4 +16,13 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Long> {
 
     // Tìm 1 sản phẩm đang hoạt động (Dùng trước khi Xóa mềm)
     java.util.Optional<hcmute.entity.SanPham> findByMaSPAndTrangThai(Long maSP, String trangThai);
+    
+ // Lấy danh sách sản phẩm public, có phân trang và lọc theo Danh Mục / Hãng SX (Nếu có truyền)
+    @org.springframework.data.jpa.repository.Query("SELECT s FROM SanPham s WHERE s.trangThai = 'true' " +
+            "AND (:maDM IS NULL OR s.danhMuc.maDM = :maDM) " +
+            "AND (:maHang IS NULL OR s.hangSX.maHang = :maHang)")
+    org.springframework.data.domain.Page<hcmute.entity.SanPham> findPublicProducts(
+            @org.springframework.data.repository.query.Param("maDM") Long maDM,
+            @org.springframework.data.repository.query.Param("maHang") Long maHang,
+            org.springframework.data.domain.Pageable pageable);
 }

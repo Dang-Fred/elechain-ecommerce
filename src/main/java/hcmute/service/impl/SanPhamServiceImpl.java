@@ -1,7 +1,7 @@
 // File: SanPhamServiceImpl.java
 package hcmute.service.impl;
 import hcmute.dto.request.SanPhamRequest;
-
+import hcmute.dto.response.ProductPublicDTO;
 import hcmute.dto.response.SanPhamResponse;
 import hcmute.entity.DanhMuc;
 import hcmute.entity.HangSX;
@@ -13,6 +13,8 @@ import hcmute.repository.SanPhamRepository;
 import hcmute.service.CloudinaryService;
 import hcmute.service.SanPhamService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -182,7 +184,20 @@ public class SanPhamServiceImpl implements SanPhamService {
         sanPhamRepository.save(sanPham);
     }
     
-    
+    @Override
+    public Page<ProductPublicDTO> getPublicProducts(Pageable pageable, Long maDM, Long maHang){
+        
+        // Gọi truy vấn từ DB
+        Page<SanPham> sanPhams = sanPhamRepository.findPublicProducts(maDM, maHang, pageable);
+
+        // Map từ Entity nặng sang DTO siêu nhẹ, vẫn giữ nguyên cấu trúc Page
+        return sanPhams.map(sp -> new hcmute.dto.response.ProductPublicDTO(
+                sp.getMaSP(),
+                sp.getTenSP(),
+                sp.getLogo(),
+                sp.getGiaBan()
+        ));
+    }
     
     
 }

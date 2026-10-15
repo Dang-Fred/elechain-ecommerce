@@ -3,13 +3,19 @@ package hcmute.service;
 
 import hcmute.dto.request.SanPhamRequest;
 import hcmute.dto.response.SanPhamResponse;
-import java.util.*;
+import hcmute.dto.response.ProductPublicDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 public interface SanPhamService {
     SanPhamResponse create(SanPhamRequest request);
     SanPhamResponse update(Long id, SanPhamRequest request);
     
-    List<hcmute.dto.response.SanPhamResponse> getSanPhams(String role, Long maCN);
+    List<SanPhamResponse> getSanPhams(String role, Long maCN);
     void softDelete(Long id);
     void restore(Long id);
+    
+    Page<ProductPublicDTO> getPublicProducts(Pageable pageable, Long maDM, Long maHang);
 }

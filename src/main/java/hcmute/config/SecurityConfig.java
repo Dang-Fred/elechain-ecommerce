@@ -51,6 +51,7 @@ public class SecurityConfig {
             	.requestMatchers(HttpMethod.GET, "/api/reviews/product/**").permitAll() //Mở public CHỈ CHO request mang method GET của API Đánh giá
             	.requestMatchers("/api/inventory/check/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll() // Mở cửa toàn bộ cho luồng Đăng nhập/Đăng ký
+                .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers( "/api/admin/login").permitAll()
                 .requestMatchers("/error").permitAll()       //Mở cửa cho cơ chế báo lỗi của Spring Boot
                 .anyRequest().authenticated()                // Các endpoint còn lại bắt buộc phải có xác thực
