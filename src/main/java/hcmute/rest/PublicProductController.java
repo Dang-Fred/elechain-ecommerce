@@ -1,4 +1,3 @@
-// File: PublicProductController.java
 package hcmute.rest;
 
 import hcmute.dto.response.ProductPublicDTO;
@@ -10,8 +9,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping("/api/public/products")
+@CrossOrigin(origins = "*") // Tránh lỗi CORS khi Front-end gọi
 public class PublicProductController {
 
     @Autowired
@@ -19,16 +21,18 @@ public class PublicProductController {
 
     @GetMapping
     public ResponseEntity<Page<ProductPublicDTO>> getPublicProducts(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "8") int size,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(required = false) Long maDM,
-            @RequestParam(required = false) Long maHang) {
+            @RequestParam(required = false) Long maHang,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "8") int size) {
 
-        // Khởi tạo đối tượng phân trang
         Pageable pageable = PageRequest.of(page, size);
         
-        // Gọi Service
-        Page<ProductPublicDTO> products = sanPhamService.getPublicProducts(pageable, maDM, maHang);
+        Page<ProductPublicDTO> products = sanPhamService.getPublicProducts(
+                keyword, minPrice, maxPrice, maDM, maHang, pageable);
 
         return ResponseEntity.ok(products);
     }

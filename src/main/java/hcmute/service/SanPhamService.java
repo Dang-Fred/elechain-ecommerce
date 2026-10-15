@@ -6,7 +6,7 @@ import hcmute.dto.response.SanPhamResponse;
 import hcmute.dto.response.ProductPublicDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface SanPhamService {
@@ -18,4 +18,12 @@ public interface SanPhamService {
     void restore(Long id);
     
     Page<ProductPublicDTO> getPublicProducts(Pageable pageable, Long maDM, Long maHang);
+    
+    Page<ProductPublicDTO> getPublicProducts(
+            String keyword, 
+            BigDecimal minPrice, 
+            BigDecimal maxPrice, 
+            Long maDM, 
+            Long maHang, 
+            Pageable pageable);
 }

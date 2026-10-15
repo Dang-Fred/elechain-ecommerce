@@ -2,7 +2,12 @@
 package hcmute.repository;
 
 import hcmute.entity.SanPham;
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import java.math.BigDecimal;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -25,4 +30,19 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Long> {
             @org.springframework.data.repository.query.Param("maDM") Long maDM,
             @org.springframework.data.repository.query.Param("maHang") Long maHang,
             org.springframework.data.domain.Pageable pageable);
+    
+    
+    @Query("SELECT s FROM SanPham s WHERE s.trangThai = 'true' " +
+            "AND (:keyword IS NULL OR LOWER(s.tenSP) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "AND (:minPrice IS NULL OR s.giaBan >= :minPrice) " +
+            "AND (:maxPrice IS NULL OR s.giaBan <= :maxPrice) " +
+            "AND (:maDM IS NULL OR s.danhMuc.maDM = :maDM) " +
+            "AND (:maHang IS NULL OR s.hangSX.maHang = :maHang)")
+    Page<SanPham> findPublicProducts(
+            @Param("keyword") String keyword,
+            @Param("minPrice") BigDecimal minPrice,
+            @Param("maxPrice") BigDecimal maxPrice,
+            @Param("maDM") Long maDM,
+            @Param("maHang") Long maHang,
+            Pageable pageable);
 }
