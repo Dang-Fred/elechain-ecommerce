@@ -26,4 +26,6 @@ public interface SanPhamService {
             Long maDM, 
             Long maHang, 
             Pageable pageable);
+    
+    SanPhamResponse getPublicProductDetail(Long maSP);
 }

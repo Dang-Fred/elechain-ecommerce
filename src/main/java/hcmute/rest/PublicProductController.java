@@ -1,6 +1,7 @@
 package hcmute.rest;
 
 import hcmute.dto.response.ProductPublicDTO;
+import hcmute.dto.response.SanPhamResponse;
 import hcmute.service.SanPhamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -35,5 +36,11 @@ public class PublicProductController {
                 keyword, minPrice, maxPrice, maDM, maHang, pageable);
 
         return ResponseEntity.ok(products);
+    }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<SanPhamResponse> getPublicProductDetail(@PathVariable Long id) {
+        SanPhamResponse response = sanPhamService.getPublicProductDetail(id);
+        return ResponseEntity.ok(response);
     }
 }
