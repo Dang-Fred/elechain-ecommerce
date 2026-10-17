@@ -1,6 +1,7 @@
 package hcmute.controller;
 
 import hcmute.dto.response.ProductPublicDTO;
+import hcmute.dto.response.SanPhamResponse;
 import hcmute.service.SanPhamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -8,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
@@ -16,6 +18,7 @@ public class ShopController {
     @Autowired
     private SanPhamService sanPhamService;
 
+ // --- API Trang chủ ---
     // Bổ sung @RequestParam để bắt tham số "?page=" trên URL (Mặc định là 0 - trang đầu tiên)
     @GetMapping("/")
     public String showHomePage(@RequestParam(defaultValue = "0") int page, Model model) {
@@ -34,5 +37,18 @@ public class ShopController {
         model.addAttribute("totalPages", productPage.getTotalPages()); // Trả về 2 (vì có 2 sản phẩm chia cho size 1)
         
         return "client/index"; 
+    }
+    
+ // --- API Trang chi tiết sản phẩm ---
+    @GetMapping("/product/{id}")
+    public String showProductDetail(@PathVariable("id") Long id, Model model) {
+        // 1. Gọi Service để lấy thông tin chi tiết sản phẩm theo ID (trả về SanPhamResponse)
+        SanPhamResponse productDetail = sanPhamService.getPublicProductDetail(id);
+        
+        // 2. Đưa đối tượng nhận được vào Model
+        model.addAttribute("sanPham", productDetail);
+        
+        // 3. Trả về view chi tiết sản phẩm
+        return "client/product-detail";
     }
 }

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout-client}">
+<head>
+    <title th:text="${sanPham.tenSP} + ' | Elechain Store'"></title>
+</head>
+<body>
+
+<main layout:fragment="content">
+    <!-- Single Page Header start -->
+    <div class="container-fluid page-header py-5">
+        <h1 class="text-center text-white display-6 wow fadeInUp" data-wow-delay="0.1s">Chi tiết sản phẩm</h1>
+        <ol class="breadcrumb justify-content-center mb-0 wow fadeInUp" data-wow-delay="0.3s">
+            <li class="breadcrumb-item"><a th:href="@{/}">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="#">Sản phẩm</a></li>
+            <li class="breadcrumb-item active text-white" th:text="${sanPham.tenSP}">Tên SP</li>
+        </ol>
+    </div>
+    <!-- Single Page Header End -->
+
+    <!-- Single Products Start -->
+    <div class="container-fluid shop py-5">
+        <div class="container py-5">
+            <div class="row g-4 justify-content-center">
+                <!-- Nội dung chính sản phẩm -->
+                <div class="col-lg-10 col-xl-10 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="row g-4 single-product">
+                        
+                        <!-- CỘT 1: HÌNH ẢNH SẢN PHẨM -->
+                        <div class="col-xl-6 text-center">
+                            <!-- Đã bỏ Owl Carousel, dùng 1 ảnh tĩnh duy nhất -->
+                            <div class="bg-light rounded p-4 d-flex justify-content-center align-items-center" style="min-height: 400px;">
+                                <img th:src="${sanPham.logo}" class="img-fluid rounded" style="max-height: 400px; object-fit: contain;" alt="Ảnh sản phẩm">
+                            </div>
+                        </div>
+                        
+                        <!-- CỘT 2: THÔNG TIN SẢN PHẨM -->
+                        <div class="col-xl-6">
+                            <!-- Tên Sản Phẩm -->
+                            <h4 class="fw-bold mb-3" th:text="${sanPham.tenSP}">Tên sản phẩm</h4>
+                            
+                            <!-- Danh mục và Hãng -->
+                            <p class="mb-3 text-muted" th:text="'Danh mục: ' + ${sanPham.tenDM} + ' | Hãng: ' + ${sanPham.tenHang}">Category: Electronics</p>
+                            
+                            <!-- Giá Bán -->
+                            <h5 class="fw-bold mb-3 text-primary" th:text="${#numbers.formatDecimal(sanPham.giaBan, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">3,35 $</h5>
+                            
+                            <!-- Đánh giá sao giả lập -->
+                            <div class="d-flex mb-4">
+                                <i class="fa fa-star text-secondary"></i>
+                                <i class="fa fa-star text-secondary"></i>
+                                <i class="fa fa-star text-secondary"></i>
+                                <i class="fa fa-star text-secondary"></i>
+                                <i class="fa fa-star text-secondary"></i>
+                            </div>
+                            
+                            <!-- Trạng thái kho -->
+                            <div class="d-flex flex-column mb-3">
+                                <small>Tình trạng: 
+                                    <strong th:class="${sanPham.trangThai == 'true' ? 'text-primary' : 'text-danger'}" 
+                                            th:text="${sanPham.trangThai == 'true' ? 'Còn hàng (Đang kinh doanh)' : 'Ngừng kinh doanh'}">Còn hàng</strong>
+                                </small>
+                            </div>
+                            
+                            <!-- Khu vực thêm vào giỏ hàng (Ẩn nếu ngừng kinh doanh) -->
+                            <div th:if="${sanPham.trangThai == 'true'}">
+                                <div class="input-group quantity mb-4" style="width: 130px;">
+                                    <div class="input-group-btn">
+                                        <button class="btn btn-sm btn-minus rounded-circle bg-light border">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                    </div>
+                                    <input type="text" class="form-control form-control-sm text-center border-0 bg-transparent" value="1" id="product-quantity">
+                                    <div class="input-group-btn">
+                                        <button class="btn btn-sm btn-plus rounded-circle bg-light border">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <a href="#" class="btn btn-primary rounded-pill px-5 py-3 mb-4" th:attr="data-id=${sanPham.maSP}">
+                                    <i class="fa fa-shopping-bag me-2 text-white"></i> Thêm vào giỏ
+                                </a>
+                            </div>
+                            <div th:unless="${sanPham.trangThai == 'true'}">
+                                <p class="text-danger fw-bold">Sản phẩm này hiện không khả dụng để mua.</p>
+                            </div>
+                        </div>
+
+                        <!-- CỘT 3: TABS THÔNG TIN CHI TIẾT -->
+                        <div class="col-lg-12 mt-5">
+                            <nav>
+                                <div class="nav nav-tabs mb-3">
+                                    <button class="nav-link active border-white border-bottom-0 fw-bold" type="button" role="tab" id="nav-about-tab" data-bs-toggle="tab" data-bs-target="#nav-about" aria-controls="nav-about" aria-selected="true">Mô tả sản phẩm</button>
+                                </div>
+                            </nav>
+                            <div class="tab-content mb-5">
+                                <div class="tab-pane active p-4 bg-light rounded" id="nav-about" role="tabpanel" aria-labelledby="nav-about-tab">
+                                    <!-- Bảo Hành -->
+                                    <h5 class="fw-bold mb-3"><i class="fas fa-shield-alt text-primary me-2"></i>Thông tin bảo hành</h5>
+                                    <p class="mb-4" th:text="${sanPham.baoHanh}">Thông tin bảo hành</p>
+
+                                    <!-- Cấu Hình -->
+                                    <h5 class="fw-bold mb-3"><i class="fas fa-cogs text-primary me-2"></i>Cấu hình kỹ thuật</h5>
+                                    <p class="mb-4" style="white-space: pre-line;" th:text="${sanPham.cauHinh}">Cấu hình</p>
+
+                                    <!-- Mô Tả -->
+                                    <h5 class="fw-bold mb-3"><i class="fas fa-info-circle text-primary me-2"></i>Mô tả chi tiết</h5>
+                                    <p class="mb-0" style="white-space: pre-line;" th:text="${sanPham.moTa}">Mô tả</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Single Products End -->
+</main>
+
+</body>
+</html>
