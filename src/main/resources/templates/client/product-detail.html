@@ -77,9 +77,11 @@
                                         </button>
                                     </div>
                                 </div>
-                                <a href="#" class="btn btn-primary rounded-pill px-5 py-3 mb-4" th:attr="data-id=${sanPham.maSP}">
-                                    <i class="fa fa-shopping-bag me-2 text-white"></i> Thêm vào giỏ
-                                </a>
+                                
+                                <a href="#" class="btn btn-primary rounded-pill px-5 py-3 mb-4 add-to-cart-btn" th:attr="data-id=${sanPham.maSP}">
+    								<i class="fa fa-shopping-bag me-2 text-white"></i> Thêm vào giỏ
+								</a>
+                                
                             </div>
                             <div th:unless="${sanPham.trangThai == 'true'}">
                                 <p class="text-danger fw-bold">Sản phẩm này hiện không khả dụng để mua.</p>

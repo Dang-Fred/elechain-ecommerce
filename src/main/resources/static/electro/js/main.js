@@ -177,3 +177,38 @@
 
 })(jQuery);
 
+document.addEventListener("DOMContentLoaded", function () {
+    const addToCartBtns = document.querySelectorAll('.add-to-cart-btn');
+    
+    addToCartBtns.forEach(btn => {
+        btn.addEventListener('click', async function (e) {
+            e.preventDefault(); 
+            
+            let maSP = this.getAttribute('data-id'); 
+            let qtyInput = document.getElementById('product-quantity');
+            let soLuongMua = qtyInput ? parseInt(qtyInput.value) : 1;
+
+            if (!maSP) return;
+
+            // Gọi thẳng bằng fetchWithAuth, quên vụ kẹp Header đi!
+            try {
+                const response = await fetchWithAuth('/api/cart/add', {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        maSP: parseInt(maSP), 
+                        soLuong: soLuongMua 
+                    })
+                });
+
+                if (response.ok) {
+                    alert("Thêm sản phẩm vào giỏ hàng thành công! 🛒");
+                } else {
+                    alert("Hệ thống đang bận, không thể thêm vào giỏ hàng lúc này.");
+                }
+            } catch (error) {
+                // Lỗi 401/403 đã bị fetchWithAuth chặn lại ở file common.js rồi
+                console.log("Xử lý thêm vào giỏ hàng thất bại.");
+            }
+        });
+    });
+});
