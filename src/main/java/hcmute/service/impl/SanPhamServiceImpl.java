@@ -218,4 +218,15 @@ public class SanPhamServiceImpl implements SanPhamService {
     }
     
     
+    @Override
+    public SanPhamResponse getPublicProductDetail(Long maSP) {
+        // Chỉ lấy sản phẩm có trạng thái là 'true'
+        SanPham sanPham = sanPhamRepository.findByMaSPAndTrangThai(maSP, "true")
+                .orElseThrow(() -> new CustomException("Sản phẩm không tồn tại hoặc đã ngừng kinh doanh", HttpStatus.NOT_FOUND));
+
+        // Tận dụng hàm mapToResponse nội bộ có sẵn để map Entity sang DTO
+        return mapToResponse(sanPham);
+    }
+    
+    
 }
