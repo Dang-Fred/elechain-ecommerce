@@ -61,6 +61,21 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         
         return donHangs.map(this::mapToOrderResponseDTO);
     }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public OrderResponseDTO getOrderDetail(String email, Long maDH) {
+        // 1. Tìm đơn hàng theo mã và email (Bảo mật Data Isolation)
+        DonHang donHang = donHangRepository.findByMaDHAndKhachHang_Email(maDH, email)
+                .orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng hoặc bạn không có quyền xem.", HttpStatus.NOT_FOUND));
+
+        return mapToOrderResponseDTO(donHang);
+    }
+    
+    
+    
+  
+    
 
     // Hàm helper map Entity sang DTO
     private OrderResponseDTO mapToOrderResponseDTO(DonHang dh) {
@@ -83,5 +98,6 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                 dh.getDiaChiGiao(), // Map từ trường snapshot thay vì bảng KhachHang
                 detailDTOs
         );
-    }
+    } 
+    
 }

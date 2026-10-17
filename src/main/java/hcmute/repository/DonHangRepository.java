@@ -7,6 +7,8 @@ import hcmute.enums.OrderStatus;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+
 import hcmute.dto.response.DoanhThuDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -88,5 +90,10 @@ public interface DonHangRepository extends JpaRepository<DonHang, Long> {
 
     @Query("SELECT COALESCE(SUM(d.tongTien), 0) FROM DonHang d WHERE d.trangThai = hcmute.enums.OrderStatus.COMPLETED AND d.chiNhanh.maCN = :maCN")
     BigDecimal sumTotalRevenueByChiNhanh(@Param("maCN") Long maCN);
+    
+ // Truy vấn đơn hàng theo mã đơn và email khách hàng
+    // Sử dụng @EntityGraph để xử lý dứt điểm Lazy Loading cho chiTietDonHangs và sanPham (tránh N+1 query)
+    @EntityGraph(attributePaths = {"chiTietDonHangs", "chiTietDonHangs.sanPham", "khachHang"})
+    Optional<DonHang> findByMaDHAndKhachHang_Email(Long maDH, String email);
     
 }

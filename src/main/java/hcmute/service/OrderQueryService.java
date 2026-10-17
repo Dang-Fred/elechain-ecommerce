@@ -12,4 +12,7 @@ public interface OrderQueryService {
     
     // Cho Nhân Viên (UC41)
 	Page<OrderResponseDTO> getOrdersByBranch(String email, Pageable pageable);
+	
+	// Xem chi tiết đơn hàng 
+	OrderResponseDTO getOrderDetail(String email, Long maDH);
 }

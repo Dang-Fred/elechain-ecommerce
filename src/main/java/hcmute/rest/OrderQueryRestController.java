@@ -40,4 +40,12 @@ public class OrderQueryRestController {
         Page<OrderResponseDTO> result = orderQueryService.getOrdersByBranch(email, pageable);
         return ResponseEntity.ok(result);
     }
+    
+ // API lấy chi tiết đơn hàng (Dành cho Khách hàng)
+    @GetMapping("/api/client/orders/{maDH}")
+    public ResponseEntity<OrderResponseDTO> getOrderDetail(Principal principal, @PathVariable Long maDH) {
+        String email = principal.getName();
+        OrderResponseDTO responseDTO = orderQueryService.getOrderDetail(email, maDH);
+        return ResponseEntity.ok(responseDTO);
+    }
 }
