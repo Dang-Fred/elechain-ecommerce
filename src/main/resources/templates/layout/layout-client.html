@@ -47,9 +47,6 @@
     <!-- 1. FILE CORE: Nạp hàm fetchWithAuth dùng chung -->
     <script th:src="@{/js/common.js}"></script>
     
-    <!-- Script tùy biến riêng của từng trang -->
-    <script layout:fragment="custom-js"></script>
-    
     
     <!-- 2. Nơi các trang con (cart.html, shop.html) chèn script riêng biệt của chúng vào -->
     <th:block layout:fragment="custom-js"></th:block>

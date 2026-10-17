@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 3. Hàm gọi API Cập nhật số lượng (PUT)
     async function updateQuantityAPI(maSP, newQty) {
         try {
-            const response = await fetch('/api/cart/update', {
+            const response = await fetchWithAuth('/api/cart/update', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 let maSP = this.getAttribute('data-masp');
                 
                 try {
-                    const response = await fetch('/api/cart/remove/' + maSP, {
+                    const response = await fetchWithAuth('/api/cart/remove/' + maSP, {
                         method: 'DELETE'
                     });
                     

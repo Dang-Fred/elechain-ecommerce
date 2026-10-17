@@ -39,4 +39,43 @@ public class CartApiController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("success", false, "message", e.getMessage()));
         }
     }
+    
+    
+ // 1. API Cập nhật số lượng (Tăng / Giảm)
+    @PutMapping("/update")
+    public ResponseEntity<?> updateCartQuantity(@RequestBody CartRequestDTO request, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("success", false, "message", "Vui lòng đăng nhập!"));
+        }
+        try {
+            String email = principal.getName();
+            
+            // LƯU Ý: Hãy sửa "capNhatSoLuong" thành đúng tên hàm trong GioHangService của bạn
+            gioHangService.suaSoLuong(email, request);
+            
+            return ResponseEntity.ok().body(Map.of("success", true, "message", "Cập nhật thành công"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    // 2. API Xóa sản phẩm khỏi giỏ
+    @DeleteMapping("/remove/{maSP}")
+    public ResponseEntity<?> removeFromCart(@PathVariable Long maSP, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("success", false, "message", "Vui lòng đăng nhập!"));
+        }
+        try {
+            String email = principal.getName();
+            
+            // LƯU Ý: Hãy sửa "xoaSanPham" thành đúng tên hàm trong GioHangService của bạn
+            gioHangService.xoaKhoiGioHang(email, maSP);
+            
+            return ResponseEntity.ok().body(Map.of("success", true, "message", "Xóa thành công"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
 }
