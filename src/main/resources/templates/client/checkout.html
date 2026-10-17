@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout-client}">
+<head>
+    <title>Thanh toán | Elechain Store</title>
+</head>
+<body>
+
+<main layout:fragment="content">
+
+    <!-- Single Page Header start -->
+    <div class="container-fluid page-header py-5">
+        <h1 class="text-center text-white display-6 wow fadeInUp" data-wow-delay="0.1s">Thanh toán (Checkout)</h1>
+        <ol class="breadcrumb justify-content-center mb-0 wow fadeInUp" data-wow-delay="0.3s">
+            <li class="breadcrumb-item"><a th:href="@{/}">Trang chủ</a></li>
+            <li class="breadcrumb-item active text-white">Thanh toán</li>
+        </ol>
+    </div>
+    <!-- Single Page Header End -->
+
+    <!-- Checkout Page Start -->
+    <div class="container-fluid bg-light overflow-hidden py-5">
+        <div class="container py-5">
+            <h1 class="mb-4 wow fadeInUp" data-wow-delay="0.1s">Chi tiết hóa đơn</h1>
+            <form action="#">
+                <div class="row g-5">
+                    <!-- PHẦN THÔNG TIN KHÁCH HÀNG -->
+                    <div class="col-md-12 col-lg-6 col-xl-6 wow fadeInUp" data-wow-delay="0.1s">
+                        <div class="row">
+                            <div class="col-md-12 col-lg-6">
+                                <div class="form-item w-100">
+                                    <label class="form-label my-3">Họ và Tên<sup>*</sup></label>
+                                    <!-- Hiển thị tên từ KhachHang -->
+                                    <input type="text" class="form-control" th:value="${khachHang.tenKH}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-lg-6">
+                                <div class="form-item w-100">
+                                    <label class="form-label my-3">Điện thoại<sup>*</sup></label>
+                                    <input type="tel" class="form-control" th:value="${khachHang.soDienThoai}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label my-3">Email<sup>*</sup></label>
+                            <input type="email" class="form-control" th:value="${khachHang.email}" readonly>
+                        </div>
+                        
+                        <!-- SELECT CHỌN CHI NHÁNH -->
+                        <div class="form-item">
+                            <label class="form-label my-3">Chọn Chi Nhánh phục vụ<sup>*</sup></label>
+                            <select id="chiNhanh" class="form-select">
+                                <option th:each="cn : ${listChiNhanh}" th:value="${cn.maCN}" th:text="${cn.tenCN}"></option>
+                            </select>
+                        </div>
+
+                        <!-- SELECT PHƯƠNG THỨC NHẬN -->
+                        <div class="form-item">
+                            <label class="form-label my-3">Phương thức nhận hàng<sup>*</sup></label>
+                            <select id="phuongThucNhan" class="form-select">
+                                <option value="Giao tận nơi">Giao tận nơi</option>
+                                <option value="Nhận tại cửa hàng">Nhận tại cửa hàng</option>
+                            </select>
+                        </div>
+
+                        <!-- ĐỊA CHỈ (Dành cho Giao tận nơi) -->
+                        <div class="form-item">
+                            <label class="form-label my-3">Số nhà, Tên đường <sup>*</sup></label>
+                            <input type="text" class="form-control" id="address" placeholder="Ví dụ: 1 Võ Văn Ngân">
+                        </div>
+                        <div class="form-item">
+                            <label class="form-label my-3">Quận/Huyện, Thành phố<sup>*</sup></label>
+                            <input type="text" class="form-control" id="city" placeholder="Ví dụ: Thủ Đức, TP.HCM">
+                        </div>
+                        
+                        <div class="form-item mt-4">
+                            <textarea name="text" class="form-control" spellcheck="false" cols="30" rows="5"
+                                placeholder="Ghi chú đơn hàng (Tùy chọn)"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- PHẦN ĐƠN HÀNG VÀ THANH TOÁN -->
+                    <div class="col-md-12 col-lg-6 col-xl-6 wow fadeInUp" data-wow-delay="0.3s">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th scope="col" class="text-start">Tên sản phẩm</th>
+                                        <th scope="col">Đơn giá</th>
+                                        <th scope="col">SL</th>
+                                        <th scope="col">Tổng</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Lặp qua giỏ hàng -->
+                                    <tr class="text-center" th:each="item : ${listCart}">
+                                        <th scope="row" class="text-start py-4" th:text="${item.tenSP}">Tên SP</th>
+                                        <td class="py-4" th:text="${#numbers.formatDecimal(item.giaBan, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">Giá</td>
+                                        <td class="py-4 text-center" th:text="${item.soLuong}">2</td>
+                                        <td class="py-4" th:text="${#numbers.formatDecimal(item.giaBan * item.soLuong, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">Tổng</td>
+                                    </tr>
+                                    
+                                    <!-- Tính tổng tiền hóa đơn -->
+                                    <tr>
+                                        <th scope="row" colspan="3" class="text-end py-4">
+                                            <p class="mb-0 text-dark text-uppercase py-2 fw-bold">TỔNG CỘNG:</p>
+                                        </th>
+                                        <td class="py-4">
+                                            <div class="py-2 text-center border-bottom border-top">
+                                                <p class="mb-0 text-primary fs-5 fw-bold" 
+                                                   th:text="${#numbers.formatDecimal(#aggregates.sum(listCart.![giaBan * soLuong]), 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                                                   $0.00
+                                                </p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- NÚT CHỐT ĐƠN ĐƯỢC GẮN ID -->
+                        <div class="row g-4 text-center align-items-center justify-content-center pt-4">
+                            <button type="button" id="btn-place-order"
+                                class="btn btn-primary border-secondary py-3 px-4 text-uppercase w-100 text-white fw-bold">CHỐT ĐƠN</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Checkout Page End -->
+
+</main>
+
+<!-- Script riêng của trang Checkout -->
+<th:block layout:fragment="custom-js">
+    <script th:src="@{/electro/js/checkout.js}"></script>
+</th:block>
+
+</body>
+</html>
