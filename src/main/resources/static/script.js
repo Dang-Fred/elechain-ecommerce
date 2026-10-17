@@ -277,8 +277,8 @@
       loginForm.addEventListener('submit', (event) => {
           event.preventDefault(); // Ngăn load lại trang
           
-          const email = document.getElementById("email").value;
-          const password = document.getElementById("password").value;
+		  const emailNguoiDung = document.getElementById("email").value; 
+		  const matKhauNguoiDung = document.getElementById("password").value;
           const submitBtn = document.querySelector(".submit");
 
           // Hiển thị trạng thái đang xử lý
@@ -289,18 +289,29 @@
 
           fetch("/api/auth/login", {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email: email, matKhau: password })
+			  headers: {
+			          'Content-Type': 'application/json' // 1. Bắt buộc phải khai báo Header này
+			      },
+				  body: JSON.stringify({                 
+				              email: emailNguoiDung,       // Key 'email' (Phải khớp với Java). Value là biến động.
+				              password: matKhauNguoiDung   // Không còn code cứng "123" nữa
+				          })
           })
           .then(response => {
               if (!response.ok) throw new Error("Thông tin đăng nhập sai!");
               return response.json();
           })
           .then(data => {
-              if (data && data.token) {
+			
+			  console.log("Dữ liệu API trả về:", data);
+			  
+              if (data && data.success && data.data && data.data.token) {
+				  const jwtToken = data.data.token; // Lấy đúng vị trí token
+				
                   // Lưu JWT vào Cookie
-                  document.cookie = `jwt_token=${data.token}; max-age=86400; path=/; samesite=strict`;
-                  statusMessage.textContent = "Thành công! Đang vào hệ thống...";
+				  document.cookie = `jwt_token=${jwtToken}; max-age=86400; path=/; samesite=strict`;	                    
+				  statusMessage.style.color = "#a1e4e9";
+				  statusMessage.textContent = "Thành công! Đang vào hệ thống...";
                   
                   // Redirect thông minh dựa trên URL hiện tại
                   setTimeout(() => {
@@ -312,7 +323,14 @@
                           window.location.href = "/";
                       }
                   }, 800);
-              }
+              } 
+			  else {
+			                    // XỬ LÝ KHI KHÔNG TÌM THẤY TOKEN ĐỂ TRÁNH BỊ TREO GIAO DIỆN
+			                    statusMessage.style.color = "#ff6b6b";
+			                    statusMessage.textContent = data.message || "Đăng nhập thất bại!";
+			                    submitBtn.style.opacity = "1";
+			                    submitBtn.style.pointerEvents = "auto";
+			                }
           })
           .catch(error => {
               statusMessage.style.color = "#ff6b6b";

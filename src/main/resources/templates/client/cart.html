@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout-client}">
+<head>
+    <title>Giỏ hàng | Elechain Store</title>
+</head>
+<body>
+
+<main layout:fragment="content">
+
+    <!-- Header Trang Giỏ Hàng -->
+    <div class="container-fluid page-header py-5">
+        <h1 class="text-center text-white display-6 wow fadeInUp" data-wow-delay="0.1s">Giỏ hàng của bạn</h1>
+        <ol class="breadcrumb justify-content-center mb-0 wow fadeInUp" data-wow-delay="0.3s">
+            <li class="breadcrumb-item"><a th:href="@{/}">Trang chủ</a></li>
+            <li class="breadcrumb-item active text-white">Giỏ hàng</li>
+        </ol>
+    </div>
+
+    <!-- Nội dung Giỏ Hàng -->
+    <div class="container-fluid py-5">
+        <div class="container py-5">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Hình ảnh</th>
+                            <th scope="col">Tên sản phẩm</th>
+                            <th scope="col">Giá bán</th>
+                            <th scope="col">Số lượng</th>
+                            <th scope="col">Thành tiền</th>
+                            <th scope="col">Xóa</th>
+                        </tr>
+                    </thead>
+                    <!-- Gắn ID cho tbody để JS dễ quét dòng trống -->
+                    <tbody id="cart-tbody">
+                        <!-- Lặp qua danh sách giỏ hàng -->
+                        <tr th:each="item : ${listCart}" th:id="'cart-row-' + ${item.maSP}">
+                            <th scope="row">
+                                <div class="d-flex align-items-center">
+                                    <img th:src="${item.logo}" class="img-fluid me-5 rounded-circle" style="width: 80px; height: 80px; object-fit: cover;" alt="Ảnh SP">
+                                </div>
+                            </th>
+                            <td>
+                                <p class="mb-0 mt-4" th:text="${item.tenSP}">Tên SP</p>
+                            </td>
+                            <td>
+                                <!-- Định dạng giá bán -->
+                                <p class="mb-0 mt-4" th:text="${#numbers.formatDecimal(item.giaBan, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">Giá</p>
+                            </td>
+                            <td>
+                                <div class="input-group quantity mt-4" style="width: 100px;">
+                                    <div class="input-group-btn">
+                                        <!-- Nút Trừ (Kèm data-masp và data-price) -->
+                                        <button class="btn btn-sm btn-minus rounded-circle bg-light border"
+                                                th:attr="data-masp=${item.maSP}, data-price=${item.giaBan}">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                    </div>
+                                    <!-- Ô input hiển thị số lượng (Kèm data-max lưu tồn kho) -->
+                                    <input type="text" class="form-control form-control-sm text-center border-0 qty-input" 
+                                           th:value="${item.soLuong}" th:attr="data-max=${item.tongTonKho}, data-masp=${item.maSP}" readonly>
+                                    <div class="input-group-btn">
+                                        <!-- Nút Cộng -->
+                                        <button class="btn btn-sm btn-plus rounded-circle bg-light border"
+                                                th:attr="data-masp=${item.maSP}, data-price=${item.giaBan}">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <!-- Ô Thành tiền của từng dòng (Giá x Số lượng) -->
+                                <p class="mb-0 mt-4 row-total" th:id="'row-total-' + ${item.maSP}"
+                                   th:text="${#numbers.formatDecimal(item.giaBan * item.soLuong, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></p>
+                            </td>
+                            <td>
+                                <!-- Nút Xóa (Gắn data-masp) -->
+                                <button class="btn btn-md rounded-circle bg-light border mt-4 btn-delete"
+                                        th:attr="data-masp=${item.maSP}">
+                                    <i class="fa fa-times text-danger"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Hiển thị khi giỏ hàng trống -->
+                        <tr th:if="${listCart.isEmpty()}" id="empty-cart-msg">
+                            <td colspan="6" class="text-center py-5">
+                                <h4 class="text-muted">Giỏ hàng của bạn đang trống!</h4>
+                                <a th:href="@{/shop}" class="btn btn-primary mt-3">Tiếp tục mua sắm</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Phần Tổng Tiền Giỏ Hàng -->
+            <div class="row g-4 justify-content-end" th:if="${!listCart.isEmpty()}" id="checkout-block">
+                <div class="col-sm-8 col-md-7 col-lg-6 col-xl-4">
+                    <div class="bg-light rounded">
+                        <div class="p-4">
+                            <h1 class="display-6 mb-4">Tổng <span class="fw-normal">Giỏ Hàng</span></h1>
+                            <div class="d-flex justify-content-between mb-4">
+                                <h5 class="mb-0 me-4">Tạm tính:</h5>
+                                <!-- JS sẽ update ID này -->
+                                <p class="mb-0" id="cart-subtotal">0 VNĐ</p> 
+                            </div>
+                        </div>
+                        <div class="py-4 mb-4 border-top border-bottom d-flex justify-content-between">
+                            <h5 class="mb-0 ps-4 me-4">Thành Tiền</h5>
+                            <!-- JS sẽ update ID này -->
+                            <p class="mb-0 pe-4 text-primary fs-5 fw-bold" id="cart-total">0 VNĐ</p>
+                        </div>
+                        <a th:href="@{/checkout}" class="btn btn-primary rounded-pill px-4 py-3 text-uppercase mb-4 ms-4 d-block text-center">Tiến hành Thanh toán</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Block chứa script riêng của trang giỏ hàng -->
+<th:block layout:fragment="custom-js">
+    <!-- Nhúng file cart.js vào -->
+    <script th:src="@{/electro/js/cart.js}"></script>
+</th:block>
+
+</body>
+</html>
