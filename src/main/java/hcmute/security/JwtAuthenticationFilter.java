@@ -3,6 +3,7 @@ package hcmute.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie; // BẮT BUỘC IMPORT THÊM CÁI NÀY
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,27 +22,39 @@ import java.util.Collections;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
-    private JwtUtil jwtUtil; // Đảm bảo anh đã có class này từ Ticket 2.2a
+    private JwtUtil jwtUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         
-        final String authHeader = request.getHeader("Authorization");
-        final String userEmail;
-        final String jwtToken;
+        String jwtToken = null;
 
-        // 1. Kiểm tra header có chứa chuỗi "Bearer " hay không
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        // 1. Thử lấy Token từ Header (Phục vụ cho các lệnh Fetch API từ file common.js)
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            jwtToken = authHeader.substring(7);
+        } 
+        // 2. NẾU HEADER KHÔNG CÓ, TÌM TRONG COOKIE (Phục vụ cho Thymeleaf khi gõ URL trên trình duyệt)
+        else if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("jwt_token".equals(cookie.getName())) { // Tên cookie được tạo lúc đăng nhập thành công
+                    jwtToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        // 3. Nếu cả Header và Cookie đều KHÔNG có Token -> Trả về khách vãng lai, cho đi tiếp (Sẽ bị SecurityConfig chặn nếu api yêu cầu quyền)
+        if (jwtToken == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 2. Cắt lấy token thực sự (bỏ qua 7 ký tự "Bearer ")
-        jwtToken = authHeader.substring(7);
-        userEmail = jwtUtil.extractEmail(jwtToken);
+        // 4. Đã tìm thấy Token (từ Header hoặc Cookie), tiến hành giải mã
+        String userEmail = jwtUtil.extractEmail(jwtToken);
 
-     // 3. Nếu có email và chưa được xác thực trong SecurityContext
+        // 5. Nếu có email và chưa được xác thực trong SecurityContext
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             
             if (jwtUtil.validateToken(jwtToken)) {
