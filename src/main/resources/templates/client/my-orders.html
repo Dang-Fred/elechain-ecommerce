@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout-client}"> <!-- Nhớ đổi đúng đường dẫn file layout của bạn -->
+<head>
+    <title>Lịch sử đơn hàng | Elechain Store</title>
+</head>
+<body>
+
+<main layout:fragment="content">
+
+    <!-- Single Page Header start -->
+    <div class="container-fluid page-header py-5">
+        <h1 class="text-center text-white display-6 wow fadeInUp" data-wow-delay="0.1s">Lịch sử đơn hàng</h1>
+        <ol class="breadcrumb justify-content-center mb-0 wow fadeInUp" data-wow-delay="0.3s">
+            <li class="breadcrumb-item"><a th:href="@{/}">Trang chủ</a></li>
+            <li class="breadcrumb-item active text-white">Lịch sử đơn hàng</li>
+        </ol>
+    </div>
+    <!-- Single Page Header End -->
+
+    <!-- My Orders Page Start -->
+    <div class="container-fluid py-5">
+        <div class="container py-5 wow fadeInUp" data-wow-delay="0.1s">
+            <div class="table-responsive">
+                <table class="table text-center align-middle">
+                    <thead>
+                        <tr class="text-dark bg-light">
+                            <th scope="col">Mã Đơn Hàng</th>
+                            <th scope="col">Ngày Đặt</th>
+                            <th scope="col">Phương Thức Nhận</th>
+                            <th scope="col">Tổng Tiền</th>
+                            <th scope="col">Trạng Thái</th>
+                            <th scope="col">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <!-- Nơi JavaScript sẽ đổ dữ liệu vào -->
+                    <tbody id="order-list">
+                        <tr>
+                            <td colspan="6" class="py-5 text-center">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Đang tải...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Khối phân trang (Pagination) -->
+            <div class="col-12">
+                <div class="pagination d-flex justify-content-center mt-5" id="pagination">
+                    <!-- Nơi JavaScript đổ các nút phân trang -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- My Orders Page End -->
+
+</main>
+
+<!-- Nhúng file JS xử lý Lịch sử đơn hàng -->
+<th:block layout:fragment="custom-js">
+    <script th:src="@{/js/my-orders.js}"></script>
+</th:block>
+
+</body>
+</html>
