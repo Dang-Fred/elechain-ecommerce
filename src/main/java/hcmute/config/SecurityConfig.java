@@ -57,7 +57,7 @@ public class SecurityConfig {
                                                                  //  Mở cửa cho giao diện và file tĩnh
                 .requestMatchers("/", "/login", "/admin/login", "/register").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/*.css", "/*.js", "/fonts/**",
-                		"/favicon.ico","/electro/**","/product/**").permitAll()
+                		"/favicon.ico","/electro/**","/product/**","/shop/**").permitAll()
                 
                 
                 
