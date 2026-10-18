@@ -3,7 +3,7 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/layout-admin}">
 <head>
-    <title>Dashboard</title>
+    <title>Dashboard Tổng Quan</title>
 </head>
 <body>
 
@@ -13,86 +13,59 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
             <div>
                 <h1 class="h3 mb-0">Dashboard</h1>
-                <p class="text-muted mb-0">Thống kê dữ liệu cửa hàng</p>
+                <p class="text-muted mb-0">Bảng điều khiển nâng cao</p>
             </div>
             <div class="d-flex gap-2 flex-shrink-0">
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Refresh data">
+                <button type="button" class="btn btn-outline-secondary" onclick="window.location.reload();" data-bs-toggle="tooltip" title="Làm mới dữ liệu">
                     <i class="bi bi-arrow-clockwise icon-hover"></i>
                 </button>
             </div>
         </div>
 
-        <!-- Stats Cards -->
+        <!-- KHU VỰC 1: STATS CARDS (API 1) -->
         <div class="row g-3 g-lg-4 mb-4">
-            <div class="col-sm-6 col-xl-3" x-data="statsCounter(12426, 5)">
-                <div class="card stats-card">
+            <div class="col-md-4">
+                <div class="card stats-card h-100">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
                             <div class="flex-shrink-0">
-                                <div class="stats-icon bg-primary bg-opacity-10 text-primary">
-                                    <i class="bi bi-people"></i>
-                                </div>
+                                <div class="stats-icon bg-warning bg-opacity-10 text-warning"><i class="bi bi-bag-check"></i></div>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                <p class="h6 mb-0 text-muted">Tổng Khách hàng</p>
-                                <div class="h3 mb-0" aria-live="polite" data-stat-value><span x-text="value.toLocaleString()">12,426</span></div>
-                                <small class="text-success-emphasis"><i class="bi bi-arrow-up"></i> +12.5%</small>
+                                <p class="h6 mb-0 text-muted">Tổng Đơn Hàng</p>
+                                <h3 class="mb-0" id="stat-orders">0</h3>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-sm-6 col-xl-3">
-                <div class="card stats-card">
+            <div class="col-md-4">
+                <div class="card stats-card h-100">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
                             <div class="flex-shrink-0">
-                                <div class="stats-icon bg-success bg-opacity-10 text-success">
-                                    <i class="bi bi-graph-up"></i>
-                                </div>
+                                <div class="stats-icon bg-success bg-opacity-10 text-success"><i class="bi bi-currency-dollar"></i></div>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                <p class="h6 mb-0 text-muted">Doanh thu</p>
-                                <h3 class="mb-0">$54,320</h3>
-                                <small class="text-success-emphasis"><i class="bi bi-arrow-up"></i> +8.2%</small>
+                                <p class="h6 mb-0 text-muted">Tổng Doanh Thu</p>
+                                <h3 class="mb-0 text-danger fw-bold" id="stat-revenue">0 ₫</h3>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-sm-6 col-xl-3">
-                <div class="card stats-card">
+            <div class="col-md-4">
+                <div class="card stats-card h-100">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
                             <div class="flex-shrink-0">
-                                <div class="stats-icon bg-warning bg-opacity-10 text-warning">
-                                    <i class="bi bi-bag-check"></i>
-                                </div>
+                                <div class="stats-icon bg-info bg-opacity-10 text-info"><i class="bi bi-box"></i></div>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                <p class="h6 mb-0 text-muted">Đơn hàng</p>
-                                <h3 class="mb-0">1,852</h3>
-                                <small class="text-danger-emphasis"><i class="bi bi-arrow-down"></i> -2.1%</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-sm-6 col-xl-3">
-                <div class="card stats-card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <div class="stats-icon bg-info bg-opacity-10 text-info">
-                                    <i class="bi bi-clock-history"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <p class="h6 mb-0 text-muted">Truy cập</p>
-                                <h3 class="mb-0">2.3s</h3>
+                                <p class="h6 mb-0 text-muted">Sản Phẩm Đã Bán</p>
+                                <h3 class="mb-0" id="stat-products">0</h3>
                             </div>
                         </div>
                     </div>
@@ -100,55 +73,93 @@
             </div>
         </div>
 
-        <!-- Chart Section -->
+        <!-- KHU VỰC 2: CHARTS (API 2 & API 3) -->
         <div class="row g-4 mb-4">
+            <!-- Biểu đồ Doanh thu theo tháng -->
             <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h2 class="h5 card-title mb-0">Tổng quan Doanh thu</h2>
-                    </div>
+                <div class="card h-100">
+                    <div class="card-header"><h2 class="h5 card-title mb-0">Doanh thu theo tháng</h2></div>
                     <div class="card-body">
-                        <div id="revenueChart" style="min-height: 320px;"></div>
+                        <div id="elechainRevenueChart" style="min-height: 320px;"></div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
-                <div class="card card-fill-row">
-                    <div class="card-header">
-                        <h2 class="h5 card-title mb-0">Hoạt động gần đây</h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="activity-feed">
-                            <div class="activity-item">
-                                <div class="activity-icon"><i class="bi bi-bag-check"></i></div>
-                                <div class="activity-content">
-                                    <p class="mb-1">Đơn hàng #1234 hoàn tất</p>
-                                    <small class="text-muted">5 phút trước</small>
-                                </div>
-                            </div>
+
+            <!-- Biểu đồ Doanh thu theo Chi nhánh (CHỈ ADMIN THẤY) -->
+            <div class="col-lg-4" th:if="${role == 'ADMIN'}">
+                <div class="card h-100">
+                    <div class="card-header"><h2 class="h5 card-title mb-0">Tỉ trọng doanh thu theo Chi nhánh</h2></div>
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div id="branchRevenueChart" style="min-height: 320px;" class="w-100 text-center text-muted">
+                            <!-- Dành chỗ vẽ biểu đồ tròn sau này -->
+                            <div class="spinner-border spinner-border-sm" role="status"></div> Đang phân tích...
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Các biểu đồ phụ khác ở dưới -->
+
+        <!-- KHU VỰC 3: TABLES (API 4 & API 5) -->
         <div class="row g-4 mb-4">
-            <div class="col-lg-6">
-                <div class="card">
-                    <div class="card-header"><h2 class="h5 card-title mb-0">Tăng trưởng User (7 Ngày)</h2></div>
-                    <div class="card-body"><div id="userGrowthChart" style="min-height: 280px;"></div></div>
+            <!-- Đơn hàng mới nhất -->
+            <div class="col-lg-7">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h2 class="h5 card-title mb-0">Đơn hàng mới nhất</h2>
+                        <a th:href="@{/admin/orders}" class="btn btn-sm btn-outline-primary">Xem tất cả</a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Mã ĐH</th>
+                                        <th>Khách hàng</th>
+                                        <th>Tổng tiền</th>
+                                        <th>Trạng thái</th>
+                                        <th>Ngày đặt</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-orders-tbody">
+                                    <tr><td colspan="5" class="text-center py-4 text-muted">Đang tải...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <div class="card">
-                    <div class="card-header"><h2 class="h5 card-title mb-0">Trạng thái Đơn hàng</h2></div>
-                    <div class="card-body"><div id="orderStatusChart" style="min-height: 280px;"></div></div>
+
+            <!-- Top 10 Sản phẩm bán chạy -->
+            <div class="col-lg-5">
+                <div class="card h-100">
+                    <div class="card-header"><h2 class="h5 card-title mb-0">Top SP Bán chạy</h2></div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 text-center">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Ảnh</th>
+                                        <th class="text-start">Tên sản phẩm</th>
+                                        <th>Đã bán</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="top-products-tbody">
+                                    <tr><td colspan="3" class="text-center py-4 text-muted">Đang tải...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<th:block layout:fragment="scripts">
+    <!-- Nhúng ApexCharts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script th:src="@{/admin/js/dashboard.js}"></script>
+</th:block>
 
 </body>
 </html>
