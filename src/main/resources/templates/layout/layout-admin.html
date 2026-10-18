@@ -95,30 +95,42 @@
         <aside class="admin-sidebar" id="admin-sidebar">
             <div class="sidebar-content">
                 <nav class="sidebar-nav">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <!-- Đã chuyển href sang endpoint của Spring Boot -->
-                            <a class="nav-link active" th:href="@{/admin/dashboard}">
-                                <i class="bi bi-speedometer2"></i>
-                                <span>Dashboard</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <!-- Đã chuyển href sang trang Đơn hàng -->
-                            <a class="nav-link" th:href="@{/admin/orders}">
-                                <i class="bi bi-bag-check"></i>
-                                <span>Quản lý Đơn hàng</span>
-                            </a>
-                        </li>
-                        <!-- Các menu khác giữ nguyên hoặc xóa bớt tùy bạn -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="bi bi-box"></i>
-                                <span>Sản phẩm</span>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
+    				<ul class="nav flex-column">
+        
+       					 <!-- 1. Dashboard: Ai vào được /admin cũng sẽ thấy -->
+        					<li class="nav-item">
+          						  <a class="nav-link active" th:href="@{/admin/dashboard}">
+               						 <i class="bi bi-speedometer2"></i>
+                						<span>Tổng quan</span>
+            					</a>
+        					</li>
+
+        				<!-- 2. Kho & Sản phẩm: Chỉ ADMIN, QLCN và NV_KHO -->
+<li class="nav-item" th:if="${role == 'ADMIN' or role == 'QLCN' or role == 'NV_KHO'}">
+    <a class="nav-link" href="#">
+        <i class="bi bi-box"></i>
+        <span>Quản lý Kho & Sản phẩm</span>
+    </a>
+</li>
+
+<!-- 3. Quản lý Đơn hàng: Chỉ ADMIN, QLCN và NV_BANHANG -->
+<li class="nav-item" th:if="${role == 'ADMIN' or role == 'QLCN' or role == 'NV_BANHANG'}">
+    <a class="nav-link" th:href="@{/admin/orders}">
+        <i class="bi bi-bag-check"></i>
+        <span>Quản lý Đơn hàng</span>
+    </a>
+</li>
+
+        <!-- 4. Quản lý Nhân sự: Quyền tối cao, CHỈ ADMIN thấy -->
+        <li class="nav-item" th:if="${role == 'ROLE_ADMIN'}">
+            <a class="nav-link" href="#">
+                <i class="bi bi-people"></i>
+                <span>Quản lý Nhân sự</span>
+            </a>
+        </li>
+
+    </ul>
+</nav>
             </div>
         </aside>
 
