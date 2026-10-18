@@ -30,12 +30,18 @@ public class AdminUIController {
             // Lấy role đầu tiên trong danh sách quyền
             userRole = authentication.getAuthorities().iterator().next().getAuthority();
         }
-     // 3. Đưa biến role xuống Thymeleaf
+     // Nếu là Nhân viên bán hàng, đẩy thẳng sang trang Quản lý đơn hàng
+        if ("NV_BANHANG".equals(userRole)) {
+            return "redirect:/admin/orders";
+        }
+        // (Tương tự, nếu là NV_KHO thì đẩy sang trang quản lý kho)
+        if ("NV_KHO".equals(userRole)) {
+            return "redirect:/admin/products"; // Hoặc URL trang kho của anh
+        }
+        // ----------------------------------
+        
+        // Nếu là ADMIN hoặc QLCN thì mới cho vào xem Dashboard
         model.addAttribute("role", userRole);
-        
-        // (Giữ nguyên các mock data của anh ở đây nếu có)
-        // model.addAttribute("totalUsers", 12434);
-        
         return "admin/index";
     }
 

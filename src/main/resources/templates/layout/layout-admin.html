@@ -76,7 +76,10 @@
                         <div class="dropdown">
                             <button class="btn btn-outline-secondary d-flex align-items-center" type="button" data-bs-toggle="dropdown">
                                 <img th:src="@{/admin/assets/images/avatar-placeholder.svg}" alt="User Avatar" width="24" height="24" class="rounded-circle me-2">
-                                <span class="d-none d-md-inline">Quản trị viên</span>
+                                <span class="d-none d-md-inline" th:if="${role == 'ADMIN'}">Quản trị viên</span>
+								<span class="d-none d-md-inline" th:if="${role == 'QLCN'}">Quản lý chi nhánh</span>
+								<span class="d-none d-md-inline" th:if="${role == 'NV_BANHANG'}">Nhân viên bán hàng</span>
+								<span class="d-none d-md-inline" th:if="${role == 'NV_KHO'}">Nhân viên kho</span>
                                 <i class="bi bi-chevron-down ms-1"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
@@ -97,13 +100,13 @@
                 <nav class="sidebar-nav">
     				<ul class="nav flex-column">
         
-       					 <!-- 1. Dashboard: Ai vào được /admin cũng sẽ thấy -->
-        					<li class="nav-item">
-          						  <a class="nav-link active" th:href="@{/admin/dashboard}">
-               						 <i class="bi bi-speedometer2"></i>
-                						<span>Tổng quan</span>
-            					</a>
-        					</li>
+       					 <!-- 1. Dashboard: Chỉ ADMIN và Quản lý Chi nhánh mới được xem -->
+							<li class="nav-item" th:if="${role == 'ADMIN' or role == 'QLCN'}">
+    							<a class="nav-link" th:href="@{/admin/dashboard}">
+       								 <i class="bi bi-speedometer2"></i>
+        								<span>Tổng quan</span>
+    							</a>
+							</li>
 
         				<!-- 2. Kho & Sản phẩm: Chỉ ADMIN, QLCN và NV_KHO -->
 <li class="nav-item" th:if="${role == 'ADMIN' or role == 'QLCN' or role == 'NV_KHO'}">
