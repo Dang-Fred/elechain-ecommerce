@@ -108,13 +108,13 @@
     							</a>
 							</li>
 
-        				<!-- 2. Kho & Sản phẩm: Chỉ ADMIN, QLCN và NV_KHO -->
-<li class="nav-item" th:if="${role == 'ADMIN' or role == 'QLCN' or role == 'NV_KHO'}">
-    <a class="nav-link" href="#">
-        <i class="bi bi-box"></i>
-        <span>Quản lý Kho & Sản phẩm</span>
-    </a>
-</li>
+						<!-- 2. Kho & Sản phẩm: Chỉ ADMIN, QLCN và NV_KHO -->
+							<li class="nav-item" th:if="${role == 'ADMIN' or role == 'QLCN' or role == 'NV_KHO'}">
+    							<a class="nav-link" th:href="@{/admin/products}">
+        							<i class="bi bi-box"></i>
+        								<span>Quản lý Kho & Sản phẩm</span>
+    							</a>
+								</li>
 
 <!-- 3. Quản lý Đơn hàng: Chỉ ADMIN, QLCN và NV_BANHANG -->
 <li class="nav-item" th:if="${role == 'ADMIN' or role == 'QLCN' or role == 'NV_BANHANG'}">

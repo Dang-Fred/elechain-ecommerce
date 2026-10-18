@@ -57,4 +57,20 @@ public class AdminUIController {
         
         return "admin/orders";
     }
+    
+    
+    @GetMapping("/products")
+    public String showProductsPage(Model model) {
+        // Lấy thông tin xác thực hiện tại từ Security Context
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        
+        // Trích xuất Role để truyền xuống giao diện (Phân quyền nút Thêm/Sửa/Xóa)
+        String role = (auth != null && auth.getAuthorities() != null && !auth.getAuthorities().isEmpty()) 
+                      ? auth.getAuthorities().iterator().next().getAuthority() : "";
+                      
+        model.addAttribute("role", role);
+        
+        // Trả về file templates/admin/products.html
+        return "admin/products";
+    }
 }

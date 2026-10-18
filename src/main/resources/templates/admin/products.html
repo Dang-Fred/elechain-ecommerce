@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout-admin}">
+<head>
+    <title>Quản lý Sản phẩm</title>
+</head>
+<body class="product-management">
+
+<div layout:fragment="content">
+    <div class="container-fluid p-4 p-lg-4">
+        
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-0">Quản lý Sản phẩm</h1>
+                <p class="text-muted mb-0">Quản lý kho hàng và danh mục sản phẩm</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-secondary" onclick="loadProducts()">
+                    <i class="bi bi-arrow-clockwise me-2"></i>Làm mới
+                </button>
+                <!-- Nút Thêm sản phẩm chỉ Admin thấy -->
+                <button th:if="${role == 'ADMIN'}" type="button" class="btn btn-primary" onclick="openAddModal()">
+                    <i class="bi bi-plus-lg me-2"></i>Thêm Sản Phẩm
+                </button>
+            </div>
+        </div>
+
+        <!-- Products Table -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="h5 card-title mb-0">Danh sách Sản phẩm</h2>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th>Danh mục</th>
+                                <th>Hãng SX</th>
+                                <th>Giá bán</th>
+                                <th>Trạng thái</th>
+                                <!-- Cột thao tác chỉ Admin thấy -->
+                                <th th:if="${role == 'ADMIN'}" style="width: 120px;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="product-tbody">
+                            <tr>
+                                <td th:colspan="${role == 'ADMIN'} ? 6 : 5" class="py-4 text-center text-muted">
+                                    <div class="spinner-border spinner-border-sm" role="status"></div> Đang tải dữ liệu...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Product Modal (Dành cho Thêm/Sửa) -->
+    <div class="modal fade" id="productModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Thông tin Sản phẩm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="productForm" onsubmit="saveProduct(event)">
+                        <!-- Input ẩn chứa ID sản phẩm -->
+                        <input type="hidden" id="maSP" name="maSP">
+                        
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="tenSP" name="tenSP" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">Danh mục <span class="text-danger">*</span></label>
+                                <select class="form-select" id="maDM" name="maDM" required>
+                                    <option value="">-- Chọn danh mục --</option>
+                                    <!-- Options sẽ được đổ bằng JS -->
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">Hãng sản xuất <span class="text-danger">*</span></label>
+                                <select class="form-select" id="maHang" name="maHang" required>
+                                    <option value="">-- Chọn hãng SX --</option>
+                                    <!-- Options sẽ được đổ bằng JS -->
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">Giá bán (VNĐ) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="giaBan" name="giaBan" min="0" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">Bảo hành</label>
+                                <input type="text" class="form-control" id="baoHanh" name="baoHanh" placeholder="VD: 12 Tháng">
+                            </div>
+                            
+                            <div class="col-12">
+                                <label class="form-label">Cấu hình (Thông số kỹ thuật)</label>
+                                <textarea class="form-control" id="cauHinh" name="cauHinh" rows="2"></textarea>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label class="form-label">Mô tả sản phẩm</label>
+                                <textarea class="form-control" id="moTa" name="moTa" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label class="form-label">Hình ảnh (Logo)</label>
+                                <input type="file" class="form-control" id="logoFile" name="logoFile" accept="image/*">
+                                <small class="text-muted" id="logoHelp">Bỏ trống nếu không muốn đổi ảnh (khi sửa).</small>
+                            </div>
+                        </div>
+                        
+                        <div class="modal-footer mt-4 px-0 pb-0">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy bỏ</button>
+                            <button type="submit" class="btn btn-primary">Lưu Sản Phẩm</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="scripts">
+    <!-- Truyền biến Role xuống JS để chặn render nút -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const currentRole = /*[[${role}]]*/ 'ADMIN';
+        /*]]>*/
+    </script>
+    
+    <!-- THÊM DÒNG NÀY ĐỂ FIX LỖI "bootstrap is not defined" -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script th:src="@{/admin/js/products.js}"></script>
+</th:block>
+
+</body>
+</html>
