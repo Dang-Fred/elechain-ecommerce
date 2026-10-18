@@ -9,6 +9,8 @@ import hcmute.repository.DonHangRepository;
 import hcmute.repository.NhanVienRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,21 +25,37 @@ public class DashboardService {
     private final ChiTietDonHangRepository chiTietDonHangRepository;
     private final NhanVienRepository nhanVienRepository;
 
+    // Hàm Helper kiểm tra Role Admin từ Token hiện tại
+    private boolean isAdminUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getAuthorities() == null) return false;
+        
+        return auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ADMIN") || 
+                               a.getAuthority().equalsIgnoreCase("ROLE_ADMIN"));
+    }
+
     // 1. Thống kê tổng quan (Summary) - Có Data Isolation
     public DashboardSummaryDTO getDashboardSummary(String email) {
-        NhanVien currentStaff = nhanVienRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin nhân viên từ Token"));
-
         Long tongDonHang;
         BigDecimal tongDoanhThu;
         Long tongSpDaBan;
 
         // Phân quyền dữ liệu
-        if ("Admin".equalsIgnoreCase(currentStaff.getVaiTro())) {
+        if (isAdminUser()) {
+            // ADMIN: Lấy số liệu toàn hệ thống, không cần dò bảng Nhân viên
             tongDonHang = donHangRepository.countTotalOrders();
             tongDoanhThu = donHangRepository.sumTotalRevenue();
             tongSpDaBan = chiTietDonHangRepository.sumTotalProductsSold();
         } else {
+            // QLCN, NV_BANHANG: Phải có trong bảng NhanVien để lấy mã Chi Nhánh filter
+            NhanVien currentStaff = nhanVienRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin nhân viên từ Token"));
+
+            if (currentStaff.getChiNhanh() == null) {
+                throw new RuntimeException("Lỗi dữ liệu: Nhân viên này không thuộc chi nhánh nào.");
+            }
+
             Long maCN = currentStaff.getChiNhanh().getMaCN();
             tongDonHang = donHangRepository.countTotalOrdersByChiNhanh(maCN);
             tongDoanhThu = donHangRepository.sumTotalRevenueByChiNhanh(maCN);
@@ -45,22 +63,26 @@ public class DashboardService {
         }
 
         return DashboardSummaryDTO.builder()
-                .tongSoDonHang(tongDonHang)
-                .tongDoanhThu(tongDoanhThu)
-                .tongSanPhamDaBan(tongSpDaBan)
+                .tongSoDonHang(tongDonHang == null ? 0L : tongDonHang)
+                .tongDoanhThu(tongDoanhThu == null ? BigDecimal.ZERO : tongDoanhThu)
+                .tongSanPhamDaBan(tongSpDaBan == null ? 0L : tongSpDaBan)
                 .build();
     }
 
     // 2. Logic phân quyền & Data Isolation cho Doanh thu theo tháng
     public List<DoanhThuDTO> getMonthlyRevenue(String email, int year) {
-        NhanVien currentStaff = nhanVienRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin nhân viên từ Token"));
-
-        if ("Admin".equalsIgnoreCase(currentStaff.getVaiTro())) {
+        if (isAdminUser()) {
             // ADMIN: Lấy doanh thu toàn hệ thống
             return donHangRepository.getDoanhThuTheoThangTrongNam(year);
         } else {
             // QLCN: Bắt buộc lấy maCN của chính người đó để filter
+            NhanVien currentStaff = nhanVienRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin nhân viên từ Token"));
+
+            if (currentStaff.getChiNhanh() == null) {
+                throw new RuntimeException("Lỗi dữ liệu: Nhân viên này không thuộc chi nhánh nào.");
+            }
+
             Long maCN = currentStaff.getChiNhanh().getMaCN();
             return donHangRepository.getDoanhThuTheoThangCuaChiNhanh(year, maCN);
         }
