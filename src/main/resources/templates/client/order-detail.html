@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout-client}"> <!-- Đảm bảo đường dẫn layout chính xác -->
+<head>
+    <title>Chi tiết đơn hàng | Elechain Store</title>
+</head>
+<body>
+
+<main layout:fragment="content">
+
+    <!-- Lưu trữ mã đơn hàng ngầm để JS lấy gọi API -->
+    <input type="hidden" id="orderIdStr" th:value="${maDH}">
+
+    <!-- Single Page Header start -->
+    <div class="container-fluid page-header py-5">
+        <h1 class="text-center text-white display-6 wow fadeInUp" data-wow-delay="0.1s">Chi tiết đơn hàng #<span th:text="${maDH}"></span></h1>
+        <ol class="breadcrumb justify-content-center mb-0 wow fadeInUp" data-wow-delay="0.3s">
+            <li class="breadcrumb-item"><a th:href="@{/}">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/my-orders}">Lịch sử đơn hàng</a></li>
+            <li class="breadcrumb-item active text-white">Chi tiết</li>
+        </ol>
+    </div>
+    <!-- Single Page Header End -->
+
+    <!-- Order Detail Content Start -->
+    <div class="container-fluid py-5">
+        <div class="container py-5 wow fadeInUp" data-wow-delay="0.1s">
+            
+            <div class="row g-5">
+                <!-- KHỐI 1: Thông tin đơn hàng (Bên trái) -->
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white py-3">
+                            <h5 class="mb-0 text-white"><i class="fas fa-info-circle me-2"></i>Thông tin đơn hàng</h5>
+                        </div>
+                        <div class="card-body bg-light">
+                            <p class="mb-2"><strong>Người nhận:</strong> <span id="txt-tenKH">Đang tải...</span></p>
+                            <p class="mb-2"><strong>Địa chỉ:</strong> <span id="txt-diaChi">Đang tải...</span></p>
+                            <p class="mb-2"><strong>Ngày đặt:</strong> <span id="txt-ngayDat">Đang tải...</span></p>
+                            <p class="mb-2"><strong>Hình thức:</strong> <span id="txt-phuongThucNhan">Đang tải...</span></p>
+                            <p class="mb-0"><strong>Trạng thái:</strong> <span id="txt-trangThai" class="badge bg-secondary">Đang tải...</span></p>
+                        </div>
+                    </div>
+                    
+                    <a th:href="@{/my-orders}" class="btn btn-secondary text-white w-100 rounded-pill py-3 fw-bold">
+                        <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
+                    </a>
+                </div>
+
+                <!-- KHỐI 2: Bảng chi tiết sản phẩm (Bên phải) -->
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-secondary text-white py-3">
+                            <h5 class="mb-0 text-white"><i class="fas fa-box-open me-2"></i>Danh sách sản phẩm</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table text-center align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Hình ảnh</th>
+                                            <th class="text-start">Tên sản phẩm</th>
+                                            <th>Đơn giá</th>
+                                            <th>Số lượng</th>
+                                            <th>Thành tiền</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="order-items-body">
+                                        <!-- Vòng loading hiển thị trong lúc chờ API -->
+                                        <tr>
+                                            <td colspan="5" class="py-5 text-center">
+                                                <div class="spinner-border text-primary" role="status"></div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="table-light">
+                                        <tr>
+                                            <th colspan="4" class="text-end py-4 fs-5 text-uppercase">Tổng tiền hóa đơn:</th>
+                                            <th class="py-4 fs-5 text-primary fw-bold" id="txt-tongTien">0 VNĐ</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Order Detail Content End -->
+
+</main>
+
+<th:block layout:fragment="custom-js">
+    <script th:src="@{/js/order-detail.js}"></script>
+</th:block>
+
+</body>
+</html>

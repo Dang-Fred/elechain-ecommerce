@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
     // Tải trang 0 (trang đầu tiên) ngay khi mở giao diện
     loadOrders(0);
+	
+	
 });
 
 // Hàm gọi API lấy danh sách đơn hàng
@@ -31,6 +33,8 @@ function renderOrders(orders) {
         return;
     }
 
+	
+	
     orders.forEach(order => {
         // 1. Format Ngày Đặt (Xử lý mảng LocalDateTime của Spring Boot)
         let dateStr = "";
@@ -59,20 +63,21 @@ function renderOrders(orders) {
         }
 
         // 4. Tạo thẻ <tr>
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-            <td class="py-4"><strong>#${order.maDH}</strong></td>
-            <td class="py-4">${dateStr}</td>
-            <td class="py-4">${order.phuongThucNhan}</td>
-            <td class="py-4 fw-bold text-primary">${tongTienStr}</td>
-            <td class="py-4"><span class="badge ${badgeClass} fs-6">${order.trangThai}</span></td>
-            <td class="py-4">
-                <a href="/my-orders/detail/${order.maDH}" class="btn btn-sm btn-outline-info rounded-pill px-3">
-                    <i class="fas fa-eye me-1"></i> Xem
-                </a>
-            </td>
-        `;
-        tbody.appendChild(tr);
+		const tr = document.createElement("tr");
+		        tr.innerHTML = `
+		            <td class="py-4"><strong>#${order.maDH}</strong></td>
+		            <td class="py-4">${dateStr}</td>
+		            <td class="py-4">${order.phuongThucNhan}</td>
+		            <td class="py-4 fw-bold text-primary">${tongTienStr}</td>
+		            <td class="py-4"><span class="badge ${badgeClass} fs-6">${order.trangThai}</span></td>
+		            <td class="py-4">
+		                <!-- Đổi thành thẻ a nhảy sang trang chi tiết -->
+		                <a href="/my-orders/detail/${order.maDH}" class="btn btn-sm btn-outline-info rounded-pill px-3">
+		                    <i class="fas fa-eye me-1"></i> Xem chi tiết
+		                </a>
+		            </td>
+		        `;
+		        tbody.appendChild(tr);
     });
 }
 
