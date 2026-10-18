@@ -63,6 +63,7 @@
                                             <th>Đơn giá</th>
                                             <th>Số lượng</th>
                                             <th>Thành tiền</th>
+                                            <th>Thao tác</th>
                                         </tr>
                                     </thead>
                                     <tbody id="order-items-body">
@@ -74,11 +75,11 @@
                                         </tr>
                                     </tbody>
                                     <tfoot class="table-light">
-                                        <tr>
-                                            <th colspan="4" class="text-end py-4 fs-5 text-uppercase">Tổng tiền hóa đơn:</th>
-                                            <th class="py-4 fs-5 text-primary fw-bold" id="txt-tongTien">0 VNĐ</th>
-                                        </tr>
-                                    </tfoot>
+   										 <tr>
+        									<th colspan="5" class="text-end py-4 fs-5 text-uppercase">Tổng tiền hóa đơn:</th> <!-- Tăng colspan từ 4 lên 5 -->
+       										 <th class="py-4 fs-5 text-primary fw-bold" id="txt-tongTien">0 VNĐ</th>
+    									</tr>
+									</tfoot>
                                 </table>
                             </div>
                         </div>
@@ -89,6 +90,41 @@
         </div>
     </div>
     <!-- Order Detail Content End -->
+    
+    <!-- Modal Đánh giá sản phẩm -->
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title text-dark" id="reviewModalLabel"><i class="fas fa-star me-2"></i>Đánh giá sản phẩm</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Input ẩn lưu mã SP đang được đánh giá -->
+                <input type="hidden" id="review-maSP">
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Số sao <span class="text-danger">*</span></label>
+                    <select id="review-soSao" class="form-select">
+                        <option value="5">5 Sao - Tuyệt vời</option>
+                        <option value="4">4 Sao - Tốt</option>
+                        <option value="3">3 Sao - Tạm được</option>
+                        <option value="2">2 Sao - Không hài lòng</option>
+                        <option value="1">1 Sao - Rất tệ</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Nhận xét của bạn</label>
+                    <textarea id="review-binhLuan" class="form-control" rows="4" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm này..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" id="btn-submit-review" class="btn btn-primary text-white">Gửi đánh giá</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 </main>
 
