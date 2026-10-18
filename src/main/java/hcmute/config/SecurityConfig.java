@@ -48,6 +48,7 @@ public class SecurityConfig {
             
             // 4. Phân quyền Request
             .authorizeHttpRequests(auth -> auth
+            	.requestMatchers("/admin/**").permitAll()
             	.requestMatchers(HttpMethod.GET, "/api/reviews/product/**").permitAll() //Mở public CHỈ CHO request mang method GET của API Đánh giá
             	.requestMatchers("/api/inventory/check/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll() // Mở cửa toàn bộ cho luồng Đăng nhập/Đăng ký
@@ -55,6 +56,8 @@ public class SecurityConfig {
                 .requestMatchers( "/api/admin/login").permitAll()
                 .requestMatchers("/error").permitAll()       //Mở cửa cho cơ chế báo lỗi của Spring Boot
                                                                  //  Mở cửa cho giao diện và file tĩnh
+                
+                
                 .requestMatchers("/", "/login", "/admin/login", "/register").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/*.css", "/*.js", "/fonts/**",
                 		"/favicon.ico","/electro/**","/product/**","/shop/**").permitAll()
