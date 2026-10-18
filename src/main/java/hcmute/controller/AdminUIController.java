@@ -8,17 +8,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/admin")
 public class AdminUIController {
 
-    // Trả về trang chủ Dashboard
+    // 1. Trả về giao diện đăng nhập
+    @GetMapping("/login")
+    public String showLoginPage() {
+        // Đường dẫn file Thymeleaf: src/main/resources/templates/admin/login.html
+        return "auth/login-admin"; 
+    }
+
+    // 2. Trả về giao diện Dashboard sau khi đăng nhập thành công
     @GetMapping({"", "/", "/dashboard"})
     public String showDashboard() {
+        // Đường dẫn file Thymeleaf: src/main/resources/templates/admin/index.html
         return "admin/index";
     }
 
-    // Trả về trang Quản lý Đơn hàng
+    // 3. Trả về giao diện quản lý đơn hàng
     @GetMapping("/orders")
     public String showOrdersPage() {
-        // Tương tự, nếu file orders của bạn đang kế thừa layout-admin,
-        // nó sẽ tự ráp vào bộ khung mới này.
         return "admin/orders";
     }
 }

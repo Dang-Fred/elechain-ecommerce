@@ -12,12 +12,7 @@ public class HomeController {
         return "auth/login-client";
     }
 
-    // Cổng Quản trị Admin
-    @GetMapping("/admin/login")
-    public String showAdminLogin() {
-        return "auth/login-admin";
-    }
-
+ 
 //    // Trang chủ tạm thời
 //    @GetMapping("/")
 //    public String showHomePage() {
