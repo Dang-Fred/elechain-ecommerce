@@ -1,88 +1,146 @@
-// Đảm bảo DOM load xong mới thực thi gọi API
-document.addEventListener("DOMContentLoaded", function() {
-    fetchOrders();
+const fetchOptions = {
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include'
+};
+
+const vndFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadSummary();
+    loadOrders(0);
 });
 
-function fetchOrders() {
-    const tableBody = document.getElementById('order-table-body');
+// 1. GỌI API SUMMARY
+function loadSummary() {
+    const totalEl = document.getElementById('summary-total');
+    // Chỉ gọi API nếu thẻ card tồn tại trên DOM (Nghĩa là Role ADMIN hoặc QLCN)
+    if (!totalEl) return;
 
-    // Gọi lên Backend API REST
-    // Gửi JWT Cookie lên Server thông qua credentials: 'include'
-    fetch('/api/admin/orders?page=0&size=20', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-    })
-    .then(response => {
-        // Xử lý báo lỗi bảo mật nếu Token hết hạn hoặc sai Role
-        if (response.status === 401 || response.status === 403) {
-            alert("Phiên đăng nhập đã hết hạn hoặc bạn không có quyền truy cập. Vui lòng đăng nhập lại!");
-            // window.location.href = '/auth/login';
-            throw new Error("Unauthorized");
-        }
-        if (!response.ok) {
-            throw new Error("Lỗi máy chủ hoặc API không tồn tại.");
-        }
-        return response.json();
-    })
-    .then(pageData => {
-        // Dữ liệu Spring Data JPA Page<T> thường nằm trong mảng 'content'
-        const orders = pageData.content;
-        
-        tableBody.innerHTML = ''; // Xoá dòng "Đang tải dữ liệu..."
+    fetch('/api/admin/orders/summary', { ...fetchOptions, method: 'GET' })
+        .then(res => res.json())
+        .then(data => {
+            if (data) {
+                totalEl.textContent = data.totalOrders || 0;
+                document.getElementById('summary-pending').textContent = data.pendingOrders || 0;
+                document.getElementById('summary-delivering').textContent = data.deliveringOrders || 0;
+                document.getElementById('summary-completed').textContent = data.completedOrders || 0;
+            }
+        })
+        .catch(err => console.error("Lỗi load summary:", err));
+}
 
-        if (!orders || orders.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Không có đơn hàng nào!</td></tr>';
-            return;
+// 2. GỌI API DANH SÁCH ĐƠN HÀNG
+function loadOrders(page) {
+    fetch(`/api/admin/orders?page=${page}&size=20`, { ...fetchOptions, method: 'GET' })
+        .then(res => res.json())
+        .then(pageData => {
+            renderOrdersTable(pageData.content || []);
+        })
+        .catch(err => console.error("Lỗi load đơn hàng:", err));
+}
+
+// 3. RENDER BẢNG & STATE MACHINE
+function renderOrdersTable(orders) {
+    const tbody = document.getElementById('orders-tbody');
+    tbody.innerHTML = '';
+
+    if (orders.length === 0) {
+        // Căn colspan linh hoạt dựa vào việc có cột Thao tác hay không
+        const colSpan = (currentRole === 'QLCN' || currentRole === 'NV_BANHANG') ? 6 : 5;
+        tbody.innerHTML = `<tr><td colspan="${colSpan}" class="text-muted py-4">Không có đơn hàng nào</td></tr>`;
+        return;
+    }
+
+    orders.forEach(order => {
+        // Format Ngày tháng
+        let dateStr = "N/A";
+        if (order.ngayDat) {
+            const d = new Date(order.ngayDat);
+            dateStr = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
         }
 
-        // Lặp qua mảng dữ liệu và tạo Element DOM
-        orders.forEach(order => {
-            // Chuẩn hóa định dạng tiền tệ và thời gian
-            const formatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
-            const dateStr = new Date(order.ngayDat).toLocaleString('vi-VN');
+        // Xử lý Badge Trạng thái
+        let badgeHtml = '';
+        let isPending = false;
+        let isDelivering = false;
+
+        // Cover cả trường hợp Backend trả về Tiếng Việt hoặc ENUM
+        if (order.trangThai === 'PENDING' || order.trangThai === 'Chờ duyệt') {
+            badgeHtml = '<span class="badge bg-warning text-dark">Chờ duyệt</span>';
+            isPending = true;
+        } else if (order.trangThai === 'DELIVERING' || order.trangThai === 'Đang giao') {
+            badgeHtml = '<span class="badge bg-info">Đang giao</span>';
+            isDelivering = true;
+        } else if (order.trangThai === 'COMPLETED' || order.trangThai === 'Hoàn thành') {
+            badgeHtml = '<span class="badge bg-success">Hoàn thành</span>';
+        } else if (order.trangThai === 'CANCELLED' || order.trangThai === 'Đã hủy') {
+            badgeHtml = '<span class="badge bg-danger">Đã hủy</span>';
+        } else {
+            badgeHtml = `<span class="badge bg-secondary">${order.trangThai}</span>`;
+        }
+
+        // Xử lý Cột Thao tác (Chỉ cho QLCN hoặc NV_BANHANG)
+        let actionTd = '';
+        if (currentRole === 'QLCN' || currentRole === 'NV_BANHANG') {
+            let buttonsHtml = '';
             
-            // Giả định backend trả về field diaChiGiao hoặc tên lấy từ DTO, mình dùng order.nguoiNhan (tùy biến theo DTO)
-            const recipientName = order.nguoiNhan ? order.nguoiNhan : "Khách hàng"; 
-            const statusBadgeColor = getStatusBadge(order.trangThai);
+            if (isPending) {
+                buttonsHtml = `
+                    <button class="btn btn-sm btn-primary me-1" onclick="updateStatus('${order.maDH}', 'DELIVERING')">Giao hàng</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="updateStatus('${order.maDH}', 'CANCELLED')">Hủy</button>
+                `;
+            } else if (isDelivering) {
+                buttonsHtml = `
+                    <button class="btn btn-sm btn-success" onclick="updateStatus('${order.maDH}', 'COMPLETED')">Hoàn thành</button>
+                `;
+            } else {
+                buttonsHtml = `<i class="bi bi-lock text-muted" title="Đã chốt"></i>`;
+            }
+            
+            actionTd = `<td>${buttonsHtml}</td>`;
+        }
 
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="fw-medium">${order.maDH}</td>
-                <td>${dateStr}</td>
-                <td>${recipientName}</td>
-                <td class="text-danger fw-bold">${formatter.format(order.tongTien)}</td>
-                <td><span class="badge ${statusBadgeColor}">${order.trangThai}</span></td>
-                <td>
-                    <button class="btn btn-sm btn-outline-info" onclick="viewOrderDetails('${order.maDH}')">
-                        Xem chi tiết
-                    </button>
-                </td>
-            `;
-            tableBody.appendChild(tr);
-        });
-    })
-    .catch(error => {
-        console.error("Lỗi khi tải đơn hàng:", error);
-        tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Lỗi kết nối hoặc tải dữ liệu thất bại!</td></tr>`;
+        // Đổ HTML
+        tbody.insertAdjacentHTML('beforeend', `
+            <tr>
+                <td class="fw-bold text-primary">#${order.maDH}</td>
+                <td class="small text-muted">${dateStr}</td>
+                <td class="text-start">${order.khachHang || 'Khách vãng lai'}</td>
+                <td class="fw-medium">${vndFormatter.format(order.tongTien)}</td>
+                <td>${badgeHtml}</td>
+                ${actionTd}
+            </tr>
+        `);
     });
 }
 
-// Hàm format màu badge Bootstrap tùy theo trạng thái
-function getStatusBadge(status) {
-    if (!status) return "bg-secondary";
-    const stt = status.toLowerCase();
-    if (stt.includes("chờ")) return "bg-warning text-dark"; // Chờ xác nhận
-    if (stt.includes("đang")) return "bg-primary";          // Đang giao
-    if (stt.includes("hoàn thành")) return "bg-success";    // Hoàn thành
-    if (stt.includes("hủy")) return "bg-danger";            // Đã hủy
-    return "bg-secondary";
-}
+// 4. GỌI API CẬP NHẬT TRẠNG THÁI
+function updateStatus(maDH, newStatus) {
+    // Tùy chỉnh câu hỏi Confirm
+    let actionName = newStatus === 'DELIVERING' ? 'Giao đơn hàng này' 
+                   : newStatus === 'COMPLETED' ? 'Chốt Hoàn thành đơn này' 
+                   : 'HỦY đơn hàng này';
+                   
+    if (!confirm(`Xác nhận: Bạn muốn ${actionName}?`)) return;
 
-// Ví dụ hàm bắt sự kiện click xem chi tiết
-function viewOrderDetails(maDH) {
-    console.log("Xem chi tiết đơn: " + maDH);
-    // Logic gọi API chi tiết đơn hàng hoặc bật Modal
+    fetch(`/api/admin/orders/${maDH}/status`, {
+        ...fetchOptions,
+        method: 'PUT',
+        body: JSON.stringify({ status: newStatus })
+    })
+    .then(async res => {
+        if (!res.ok) {
+            const errData = await res.json();
+            throw new Error(errData.message || "Cập nhật thất bại!");
+        }
+        return res.json();
+    })
+    .then(data => {
+        // Cập nhật thành công -> Load lại dữ liệu
+        loadOrders(0);
+        loadSummary();
+    })
+    .catch(err => {
+        alert(err.message);
+    });
 }
