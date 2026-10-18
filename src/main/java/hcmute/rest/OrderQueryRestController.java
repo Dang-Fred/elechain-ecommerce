@@ -1,6 +1,7 @@
 // File: OrderQueryRestController.java
 package hcmute.rest;
 
+import hcmute.dto.response.OrderPageSummaryDTO;
 import hcmute.dto.response.OrderResponseDTO;
 import hcmute.service.OrderQueryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,4 +49,19 @@ public class OrderQueryRestController {
         OrderResponseDTO responseDTO = orderQueryService.getOrderDetail(email, maDH);
         return ResponseEntity.ok(responseDTO);
     }
+    
+    
+    @GetMapping("/api/admin/orders/summary")
+    public ResponseEntity<OrderPageSummaryDTO> getOrderSummary(Principal principal) {
+        String email = principal.getName();
+        OrderPageSummaryDTO summary = orderQueryService.getOrderPageSummary(email);
+        return ResponseEntity.ok(summary);
+    }
+    
+    
+    
+    
+    
+    
+    
 }

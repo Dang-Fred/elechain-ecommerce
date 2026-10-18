@@ -2,11 +2,13 @@
 package hcmute.service.impl;
 
 import hcmute.dto.response.OrderDetailResponseDTO;
+import hcmute.dto.response.OrderPageSummaryDTO;
 import hcmute.dto.response.OrderResponseDTO;
 import hcmute.entity.ChiTietDonHang;
 import hcmute.entity.DonHang;
 import hcmute.entity.KhachHang;
 import hcmute.entity.NhanVien;
+import hcmute.enums.OrderStatus;
 import hcmute.exception.CustomException;
 import hcmute.repository.ChiTietDonHangRepository;
 import hcmute.repository.DonHangRepository;
@@ -30,6 +32,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     @Autowired private ChiTietDonHangRepository chiTietDonHangRepository;
     @Autowired private KhachHangRepository khachHangRepository;
     @Autowired private NhanVienRepository nhanVienRepository;
+    
 
     @Override
     @Transactional(readOnly = true)
@@ -70,6 +73,41 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                 .orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng hoặc bạn không có quyền xem.", HttpStatus.NOT_FOUND));
 
         return mapToOrderResponseDTO(donHang);
+    }
+    
+    
+    @Override
+    @Transactional(readOnly = true)
+    public OrderPageSummaryDTO getOrderPageSummary(String email) {
+        NhanVien nhanVien = nhanVienRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException("Không tìm thấy nhân viên.", HttpStatus.NOT_FOUND));
+
+        String vaiTro = nhanVien.getVaiTro() != null ? nhanVien.getVaiTro().trim() : "";
+        
+        if ("Admin".equalsIgnoreCase(vaiTro)) {
+            // View Master cho Admin
+            return OrderPageSummaryDTO.builder()
+                    .totalOrders(donHangRepository.count())
+                    .pendingOrders(donHangRepository.countByTrangThai(OrderStatus.PENDING))
+                    .deliveringOrders(donHangRepository.countByTrangThai(OrderStatus.DELIVERING))
+                    .completedOrders(donHangRepository.countByTrangThai(OrderStatus.COMPLETED))
+                    .cancelledOrders(donHangRepository.countByTrangThai(OrderStatus.CANCELLED))
+                    .build();
+        } else {
+            // Data Isolation cho Chi nhánh
+            if (nhanVien.getChiNhanh() == null) {
+                throw new CustomException("Lỗi dữ liệu: Nhân viên này không thuộc chi nhánh nào.", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            Long maCN = nhanVien.getChiNhanh().getMaCN();
+            
+            return OrderPageSummaryDTO.builder()
+                    .totalOrders(donHangRepository.countByChiNhanh_MaCN(maCN))
+                    .pendingOrders(donHangRepository.countByTrangThaiAndChiNhanh_MaCN(OrderStatus.PENDING, maCN))
+                    .deliveringOrders(donHangRepository.countByTrangThaiAndChiNhanh_MaCN(OrderStatus.DELIVERING, maCN))
+                    .completedOrders(donHangRepository.countByTrangThaiAndChiNhanh_MaCN(OrderStatus.COMPLETED, maCN))
+                    .cancelledOrders(donHangRepository.countByTrangThaiAndChiNhanh_MaCN(OrderStatus.CANCELLED, maCN))
+                    .build();
+        }
     }
     
     

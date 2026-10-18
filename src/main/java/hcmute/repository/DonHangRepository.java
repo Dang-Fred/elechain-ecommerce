@@ -96,4 +96,31 @@ public interface DonHangRepository extends JpaRepository<DonHang, Long> {
     @EntityGraph(attributePaths = {"chiTietDonHangs", "chiTietDonHangs.sanPham", "khachHang"})
     Optional<DonHang> findByMaDHAndKhachHang_Email(Long maDH, String email);
     
+    
+    
+ // Đếm số lượng đơn hàng theo trạng thái (Toàn hệ thống - Dành cho Admin)
+    Long countByTrangThai(OrderStatus trangThai);
+
+    // Đếm tổng số lượng đơn hàng của 1 Chi Nhánh
+    Long countByChiNhanh_MaCN(Long maCN);
+
+    // Đếm số lượng đơn hàng theo trạng thái của 1 Chi Nhánh (Dành cho QLCN/NV)
+    Long countByTrangThaiAndChiNhanh_MaCN(OrderStatus trangThai, Long maCN);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 }

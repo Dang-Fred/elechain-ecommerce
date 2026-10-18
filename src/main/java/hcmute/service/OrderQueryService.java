@@ -1,6 +1,7 @@
 // File: OrderQueryService.java
 package hcmute.service;
 
+import hcmute.dto.response.OrderPageSummaryDTO;
 import hcmute.dto.response.OrderResponseDTO;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -15,4 +16,6 @@ public interface OrderQueryService {
 	
 	// Xem chi tiết đơn hàng 
 	OrderResponseDTO getOrderDetail(String email, Long maDH);
+	
+	OrderPageSummaryDTO getOrderPageSummary(String email);
 }
