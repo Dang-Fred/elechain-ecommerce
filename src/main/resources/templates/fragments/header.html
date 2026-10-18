@@ -37,6 +37,7 @@
                             <a th:href="@{/login}" class="dropdown-item"> Đăng nhập</a>
                             <a th:href="@{/register}" class="dropdown-item"> Đăng ký</a>
                             <a th:href="@{/my-orders}" class="dropdown-item"> Đơn hàng của tôi</a>
+                            <a th:href="@{/wallet}" class="dropdown-item"> Quản lý ví điện tử</a>
                             <a href="#" class="dropdown-item"> Đăng xuất</a>
                         </div>
                     </div>
@@ -102,8 +103,8 @@
             <div class="col-12 col-lg-9">
                 <nav class="navbar navbar-expand-lg navbar-light bg-primary">
                     <a th:href="@{/}" class="navbar-brand d-block d-lg-none">
-                        <h1 class="display-5 text-secondary m-0"><i class="fas fa-shopping-bag text-white me-2"></i>Elechain</h1>
-                    </a>
+            				<h1 class="display-5 text-secondary m-0"><i class="fas fa-shopping-bag text-white me-2"></i>Elechain</h1>
+                    	</a>
                     <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                         <span class="fa fa-bars fa-1x"></span>
                     </button>
@@ -112,7 +113,8 @@
                             <a th:href="@{/}" class="nav-item nav-link active">Trang chủ</a>
                             <a th:href="@{/shop}" class="nav-item nav-link">Cửa hàng</a>
                             <a href="#" class="nav-item nav-link">Khuyến mãi</a>
-                            <a href="#" class="nav-item nav-link me-2">Liên hệ</a>
+                            <a th:href="@{/my-orders}" class="nav-item nav-link me-2">Đơn hàng của tôi</a>
+							<a th:href="@{/wallet}" class="nav-item nav-link me-2">Xem số dư</a>
                         </div>
                     </div>
                 </nav>
