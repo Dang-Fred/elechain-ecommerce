@@ -43,17 +43,40 @@ public class OrderUpdateServiceImpl implements OrderUpdateService {
             }
         }
 
-        // Rẽ nhánh logic Hủy đơn
+     // 1. Rẽ nhánh logic Hủy đơn (Trường hợp PENDING -> CANCELLED)
         if (newStatus == OrderStatus.CANCELLED) {
             cancelOrder(email, maDH, true);
-            return; // Hàm cancelOrder đã tự xử lý save và hoàn tiền/kho
+            return;
         }
 
-        // Không cho phép đổi trạng thái của đơn đã Hủy hoặc Hoàn thành
-        if (donHang.getTrangThai() == OrderStatus.CANCELLED || donHang.getTrangThai() == OrderStatus.COMPLETED) {
+        OrderStatus currentStatus = donHang.getTrangThai();
+
+        // 2. Chặn thay đổi nếu đơn đã CANCELLED hoặc COMPLETED
+        if (currentStatus == OrderStatus.CANCELLED || currentStatus == OrderStatus.COMPLETED) {
             throw new CustomException("Không thể thay đổi trạng thái của đơn hàng đã Hủy hoặc Hoàn thành.", HttpStatus.BAD_REQUEST);
         }
 
+        // 3. STATE MACHINE: Bắt buộc đi theo luồng tuần tự PENDING -> DELIVERING -> COMPLETED
+        boolean isValidTransition = false;
+        switch (currentStatus) {
+            case PENDING:
+                if (newStatus == OrderStatus.DELIVERING) isValidTransition = true;
+                break;
+            case DELIVERING:
+                if (newStatus == OrderStatus.COMPLETED) isValidTransition = true;
+                break;
+            default:
+                break; // Mọi trường hợp khác đều là nhảy cóc hoặc lùi trạng thái
+        }
+
+        if (!isValidTransition) {
+            throw new CustomException(
+                    String.format("Luồng trạng thái không hợp lệ. Không thể chuyển từ [%s] sang [%s].", currentStatus.name(), newStatus.name()), 
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+
+        // 4. Cập nhật và lưu nếu hợp lệ
         donHang.setTrangThai(newStatus);
         donHangRepository.save(donHang);
     }
