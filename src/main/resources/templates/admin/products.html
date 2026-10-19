@@ -16,11 +16,21 @@
                 <h1 class="h3 mb-0">Quản lý Sản phẩm</h1>
                 <p class="text-muted mb-0">Quản lý kho hàng và danh mục sản phẩm</p>
             </div>
+            
             <div class="d-flex gap-2">
                 <button type="button" class="btn btn-outline-secondary" onclick="loadProducts()">
                     <i class="bi bi-arrow-clockwise me-2"></i>Làm mới
                 </button>
-                <!-- Nút Thêm sản phẩm chỉ Admin thấy -->
+                
+                <!-- BẮT ĐẦU CHÈN THÊM: 2 Nút quản lý phụ -->
+                <button th:if="${role == 'ADMIN'}" type="button" class="btn btn-outline-success" onclick="openCategoryModal()">
+                    <i class="bi bi-tags me-2"></i>Quản lý Danh mục
+                </button>
+                <button th:if="${role == 'ADMIN'}" type="button" class="btn btn-outline-info" onclick="openBrandModal()">
+                    <i class="bi bi-shop me-2"></i>Quản lý Hãng
+                </button>
+                <!-- KẾT THÚC CHÈN THÊM -->
+
                 <button th:if="${role == 'ADMIN'}" type="button" class="btn btn-primary" onclick="openAddModal()">
                     <i class="bi bi-plus-lg me-2"></i>Thêm Sản Phẩm
                 </button>
@@ -192,6 +202,97 @@
             </div>
         </div>
     </div>
+
+
+	<!-- Modal Quản lý Danh mục -->
+    <div class="modal fade" id="categoryModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Quản lý Danh mục</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Form Thêm/Sửa inline -->
+                    <form id="categoryForm" class="row g-2 mb-4 bg-light p-3 border rounded" onsubmit="saveCategory(event)">
+                        <input type="hidden" id="cat-maDM" name="maDM">
+                        <div class="col-md-5">
+                            <label class="form-label small">Tên danh mục <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm" id="cat-tenDM" name="tenDM" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label small">Logo (Tùy chọn)</label>
+                            <input type="file" class="form-control form-control-sm" id="cat-logo" name="logoFile" accept="image/*">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-success btn-sm w-100" id="btn-save-cat">Lưu</button>
+                        </div>
+                    </form>
+                    
+                    <!-- Bảng Danh mục -->
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th style="width: 60px;">ID</th>
+                                    <th style="width: 80px;">Logo</th>
+                                    <th>Tên danh mục</th>
+                                    <th style="width: 100px;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cat-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Quản lý Hãng SX -->
+    <div class="modal fade" id="brandModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Quản lý Hãng sản xuất</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Form Thêm/Sửa inline -->
+                    <form id="brandForm" class="row g-2 mb-4 bg-light p-3 border rounded" onsubmit="saveBrand(event)">
+                        <input type="hidden" id="brand-maHang" name="maHang">
+                        <div class="col-md-5">
+                            <label class="form-label small">Tên hãng <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm" id="brand-tenHang" name="tenHang" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label small">Logo (Tùy chọn)</label>
+                            <input type="file" class="form-control form-control-sm" id="brand-logo" name="logoFile" accept="image/*">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-info text-white btn-sm w-100" id="btn-save-brand">Lưu</button>
+                        </div>
+                    </form>
+                    
+                    <!-- Bảng Hãng SX -->
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th style="width: 60px;">ID</th>
+                                    <th style="width: 80px;">Logo</th>
+                                    <th>Tên Hãng</th>
+                                    <th style="width: 100px;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="brand-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 </div>
 
 <th:block layout:fragment="scripts">

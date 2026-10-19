@@ -319,3 +319,161 @@ function deleteProduct(id) {
     })
     .catch(err => alert(err.message));
 }
+
+
+// ==========================================
+// 4. QUẢN LÝ DANH MỤC (CRUD)
+// ==========================================
+let globalCatManager = [];
+
+function openCategoryModal() {
+    document.getElementById('categoryForm').reset();
+    document.getElementById('cat-maDM').value = "";
+    loadCategoriesManager();
+    new bootstrap.Modal(document.getElementById('categoryModal')).show();
+}
+
+function loadCategoriesManager() {
+    fetch('/api/v1/danh-muc', { method: 'GET', ...fetchOptions })
+        .then(res => res.ok ? res.json() : [])
+        .then(data => {
+            globalCatManager = data;
+            const tbody = document.getElementById('cat-tbody');
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">Chưa có danh mục nào</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = data.map(item => {
+                let imgSrc = 'https://placehold.co/40x40?text=No+Img';
+                if (item.logo) {
+                    imgSrc = item.logo.startsWith('http') ? item.logo : CLOUDFLARE_URL + item.logo;
+                }
+                return `
+                    <tr>
+                        <td>#${item.maDM}</td>
+                        <td><img src="${imgSrc}" style="width: 40px; height: 40px; object-fit: contain;" class="border rounded bg-white"></td>
+                        <td class="fw-medium">${item.tenDM}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary py-0" onclick="editCategory(${item.maDM})" title="Sửa"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-outline-danger py-0" onclick="deleteCategory(${item.maDM})" title="Xóa"><i class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }).catch(err => console.error(err));
+}
+
+function saveCategory(event) {
+    event.preventDefault();
+    const form = document.getElementById('categoryForm');
+    const formData = new FormData(form);
+    const id = formData.get('maDM');
+    const method = id ? 'PUT' : 'POST';
+    const url = id ? `/api/v1/danh-muc/${id}` : '/api/v1/danh-muc';
+
+    fetch(url, { method: method, credentials: 'include', body: formData })
+        .then(async res => {
+            if (!res.ok) throw new Error("Lỗi khi lưu danh mục!");
+            form.reset();
+            document.getElementById('cat-maDM').value = "";
+            loadCategoriesManager(); // Render lại bảng trong Modal
+            loadCategories(); // Render lại <select> ở form Sản Phẩm chính (hàm cũ đã viết)
+        }).catch(err => alert(err.message));
+}
+
+function editCategory(id) {
+    const item = globalCatManager.find(c => c.maDM === id);
+    if (!item) return;
+    document.getElementById('cat-maDM').value = item.maDM;
+    document.getElementById('cat-tenDM').value = item.tenDM;
+    document.getElementById('cat-logo').value = ''; 
+}
+
+function deleteCategory(id) {
+    if (!confirm("Xác nhận xóa danh mục này?")) return;
+    fetch(`/api/v1/danh-muc/${id}`, { method: 'DELETE', ...fetchOptions })
+        .then(async res => {
+            if (!res.ok) throw new Error("Không thể xóa (có thể đang chứa SP)!");
+            loadCategoriesManager();
+            loadCategories();
+        }).catch(err => alert(err.message));
+}
+
+
+// ==========================================
+// 5. QUẢN LÝ HÃNG SẢN XUẤT (CRUD)
+// ==========================================
+let globalBrandManager = [];
+
+function openBrandModal() {
+    document.getElementById('brandForm').reset();
+    document.getElementById('brand-maHang').value = "";
+    loadBrandsManager();
+    new bootstrap.Modal(document.getElementById('brandModal')).show();
+}
+
+function loadBrandsManager() {
+    fetch('/api/v1/hang-sx', { method: 'GET', ...fetchOptions })
+        .then(res => res.ok ? res.json() : [])
+        .then(data => {
+            globalBrandManager = data;
+            const tbody = document.getElementById('brand-tbody');
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">Chưa có hãng nào</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = data.map(item => {
+                let imgSrc = 'https://placehold.co/40x40?text=No+Img';
+                if (item.logo) {
+                    imgSrc = item.logo.startsWith('http') ? item.logo : CLOUDFLARE_URL + item.logo;
+                }
+                return `
+                    <tr>
+                        <td>#${item.maHang}</td>
+                        <td><img src="${imgSrc}" style="width: 40px; height: 40px; object-fit: contain;" class="border rounded bg-white"></td>
+                        <td class="fw-medium">${item.tenHang}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary py-0" onclick="editBrand(${item.maHang})" title="Sửa"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-outline-danger py-0" onclick="deleteBrand(${item.maHang})" title="Xóa"><i class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }).catch(err => console.error(err));
+}
+
+function saveBrand(event) {
+    event.preventDefault();
+    const form = document.getElementById('brandForm');
+    const formData = new FormData(form);
+    const id = formData.get('maHang');
+    const method = id ? 'PUT' : 'POST';
+    const url = id ? `/api/v1/hang-sx/${id}` : '/api/v1/hang-sx';
+
+    fetch(url, { method: method, credentials: 'include', body: formData })
+        .then(async res => {
+            if (!res.ok) throw new Error("Lỗi khi lưu hãng SX!");
+            form.reset();
+            document.getElementById('brand-maHang').value = "";
+            loadBrandsManager(); 
+            loadBrands(); 
+        }).catch(err => alert(err.message));
+}
+
+function editBrand(id) {
+    const item = globalBrandManager.find(c => c.maHang === id);
+    if (!item) return;
+    document.getElementById('brand-maHang').value = item.maHang;
+    document.getElementById('brand-tenHang').value = item.tenHang;
+    document.getElementById('brand-logo').value = ''; 
+}
+
+function deleteBrand(id) {
+    if (!confirm("Xác nhận xóa hãng sản xuất này?")) return;
+    fetch(`/api/v1/hang-sx/${id}`, { method: 'DELETE', ...fetchOptions })
+        .then(async res => {
+            if (!res.ok) throw new Error("Không thể xóa (có thể đang chứa SP)!");
+            loadBrandsManager();
+            loadBrands();
+        }).catch(err => alert(err.message));
+}
