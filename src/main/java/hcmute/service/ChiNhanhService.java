@@ -14,4 +14,6 @@ public interface ChiNhanhService {
     
     void softDelete(Long id);
     void restore(Long id);
+    
+    List<ChiNhanhResponse> getAll();
 }

@@ -12,16 +12,29 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class ChiNhanhServiceImpl implements ChiNhanhService {
 
     @Autowired
     private ChiNhanhRepository chiNhanhRepository;
 
+ // Hàm tiện ích dùng chung để map Entity -> DTO
+    private ChiNhanhResponse mapToResponse(ChiNhanh chiNhanh) {
+        return new ChiNhanhResponse(
+                chiNhanh.getMaCN(), 
+                chiNhanh.getTenCN(), 
+                chiNhanh.getDiaChi(), 
+                chiNhanh.getHotline(),
+                chiNhanh.getTrangThai() // MỚI BỔ SUNG
+        );
+    }
+
     @Override
     @Transactional
     public ChiNhanhResponse create(ChiNhanhRequest request) {
-        // Kiểm tra trùng lặp Tên chi nhánh & Hotline
         if (chiNhanhRepository.existsByTenCN(request.getTenCN())) {
             throw new CustomException("Tên chi nhánh đã tồn tại trong hệ thống", HttpStatus.BAD_REQUEST);
         }
@@ -36,10 +49,7 @@ public class ChiNhanhServiceImpl implements ChiNhanhService {
 
         ChiNhanh savedChiNhanh = chiNhanhRepository.save(chiNhanh);
 
-        // TODO: UC 31 (Bước 4) - Gọi hàm Khởi tạo Kho Hàng trống ở đây khi có KhoHangRepository
-
-        return new ChiNhanhResponse(savedChiNhanh.getMaCN(), savedChiNhanh.getTenCN(), 
-                                    savedChiNhanh.getDiaChi(), savedChiNhanh.getHotline());
+        return mapToResponse(savedChiNhanh);
     }
 
     @Override
@@ -48,7 +58,6 @@ public class ChiNhanhServiceImpl implements ChiNhanhService {
         ChiNhanh chiNhanh = chiNhanhRepository.findById(id)
                 .orElseThrow(() -> new CustomException("Không tìm thấy chi nhánh", HttpStatus.NOT_FOUND));
 
-        // Kiểm tra trùng lặp (loại trừ chính nó)
         if (chiNhanhRepository.existsByTenCNAndMaCNNot(request.getTenCN(), id)) {
             throw new CustomException("Tên chi nhánh đã tồn tại trong hệ thống", HttpStatus.BAD_REQUEST);
         }
@@ -62,16 +71,14 @@ public class ChiNhanhServiceImpl implements ChiNhanhService {
 
         ChiNhanh updatedChiNhanh = chiNhanhRepository.save(chiNhanh);
 
-        return new ChiNhanhResponse(updatedChiNhanh.getMaCN(), updatedChiNhanh.getTenCN(), 
-                                    updatedChiNhanh.getDiaChi(), updatedChiNhanh.getHotline());
+        return mapToResponse(updatedChiNhanh);
     }
-    
 
     @Override
-    public java.util.List<ChiNhanhResponse> getAllActive() {
+    public List<ChiNhanhResponse> getAllActive() {
         return chiNhanhRepository.findAllByTrangThaiTrue().stream()
-                .map(cn -> new ChiNhanhResponse(cn.getMaCN(), cn.getTenCN(), cn.getDiaChi(), cn.getHotline()))
-                .collect(java.util.stream.Collectors.toList());
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -79,17 +86,23 @@ public class ChiNhanhServiceImpl implements ChiNhanhService {
         ChiNhanh chiNhanh = chiNhanhRepository.findByMaCNAndTrangThaiTrue(id)
                 .orElseThrow(() -> new CustomException("Không tìm thấy chi nhánh hoặc chi nhánh đã ngừng hoạt động", HttpStatus.NOT_FOUND));
         
-        return new ChiNhanhResponse(chiNhanh.getMaCN(), chiNhanh.getTenCN(), chiNhanh.getDiaChi(), chiNhanh.getHotline());
+        return mapToResponse(chiNhanh);
+    }
+
+    @Override
+    public List<ChiNhanhResponse> getAll() {
+        // Lấy TẤT CẢ chi nhánh (phục vụ cho Admin quản lý cả chi nhánh đã ẩn)
+        return chiNhanhRepository.findAll().stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
     public void softDelete(Long id) {
-        // Tìm chi nhánh, nếu không tồn tại hoặc đã xóa mềm thì báo 404
         ChiNhanh chiNhanh = chiNhanhRepository.findByMaCNAndTrangThaiTrue(id)
                 .orElseThrow(() -> new CustomException("Không tìm thấy chi nhánh hoặc chi nhánh đã ngừng hoạt động", HttpStatus.NOT_FOUND));
         
-        // Đổi trạng thái thay vì xóa vật lý
         chiNhanh.setTrangThai(false);
         chiNhanhRepository.save(chiNhanh);
     }
@@ -97,7 +110,6 @@ public class ChiNhanhServiceImpl implements ChiNhanhService {
     @Override
     @Transactional
     public void restore(Long id) {
-        // Dùng findById mặc định để tìm được cả những chi nhánh đang có trangThai = false
         ChiNhanh chiNhanh = chiNhanhRepository.findById(id)
                 .orElseThrow(() -> new CustomException("Không tìm thấy chi nhánh", HttpStatus.NOT_FOUND));
 
@@ -105,26 +117,7 @@ public class ChiNhanhServiceImpl implements ChiNhanhService {
             throw new CustomException("Chi nhánh này vẫn đang hoạt động, không cần khôi phục!", HttpStatus.BAD_REQUEST);
         }
 
-        // Bật lại trạng thái hoạt động
         chiNhanh.setTrangThai(true);
         chiNhanhRepository.save(chiNhanh);
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }

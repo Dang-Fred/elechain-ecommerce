@@ -5,9 +5,13 @@ import hcmute.dto.request.ChiNhanhRequest;
 import hcmute.dto.response.ChiNhanhResponse;
 import hcmute.service.ChiNhanhService;
 import jakarta.validation.Valid;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -52,5 +56,11 @@ public class ChiNhanhRestController {
     public ResponseEntity<String> restoreChiNhanh(@PathVariable Long id) {
         chiNhanhService.restore(id);
         return ResponseEntity.ok("Khôi phục hoạt động chi nhánh thành công");
+    }
+    
+    @GetMapping("/all")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<List<ChiNhanhResponse>> getAllChiNhanh() {
+        return ResponseEntity.ok(chiNhanhService.getAll());
     }
 }

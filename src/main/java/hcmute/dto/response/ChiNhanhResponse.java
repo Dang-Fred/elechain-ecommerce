@@ -15,4 +15,5 @@ public class ChiNhanhResponse {
     private String tenCN;
     private String diaChi;
     private String hotline;
+    private Boolean trangThai;
 }
