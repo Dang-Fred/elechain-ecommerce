@@ -139,7 +139,7 @@ public class SanPhamServiceImpl implements SanPhamService {
             // ADMIN: Lấy tất cả hệ thống
             sanPhams = sanPhamRepository.findAll();
             
-        } else if (java.util.Arrays.asList("QUAN_LY_CHI_NHANH", "NHAN_VIEN", "NHAN_VIEN_KHO").contains(normalizedRole)) {
+        } else if (java.util.Arrays.asList("QLCN", "NV_KHO","QUAN_LY_CHI_NHANH", "NHAN_VIEN", "NHAN_VIEN_KHO").contains(normalizedRole)) {
             // KHU VỰC: Bắt buộc kiểm tra maCN
             if (maCN == null) {
                 throw new CustomException("Nhân viên chi nhánh bắt buộc phải cung cấp X-Branch-Id", HttpStatus.BAD_REQUEST);

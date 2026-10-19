@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -59,7 +60,9 @@ public class SanPhamRestController {
         return ResponseEntity.ok(response);
     }
     
+ // THÊM DÒNG @PreAuthorize NÀY ĐỂ GHI ĐÈ QUYỀN, CHO PHÉP NV_KHO VÀ QLCN TRUY CẬP
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'QLCN', 'NV_KHO')")
     public ResponseEntity<java.util.List<SanPhamResponse>> getSanPhams(Principal principal) {
         String role = "";
         Long maCN = null;
