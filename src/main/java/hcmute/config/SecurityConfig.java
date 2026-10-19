@@ -46,25 +46,38 @@ public class SecurityConfig {
             // 3. Quản lý Session: Tắt hoàn toàn Session của Spring, chuyển sang Stateless
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             
-            // 4. Phân quyền Request
+         // 4. Phân quyền Request
             .authorizeHttpRequests(auth -> auth
-            	.requestMatchers("/admin/**").permitAll()
-            	.requestMatchers(HttpMethod.GET, "/api/reviews/product/**").permitAll() //Mở public CHỈ CHO request mang method GET của API Đánh giá
-            	.requestMatchers("/api/inventory/check/**").permitAll()
-                .requestMatchers("/api/auth/**").permitAll() // Mở cửa toàn bộ cho luồng Đăng nhập/Đăng ký
-                .requestMatchers("/api/public/**").permitAll()
-                .requestMatchers( "/api/admin/login").permitAll()
-                .requestMatchers("/error").permitAll()       //Mở cửa cho cơ chế báo lỗi của Spring Boot
-                                                                 //  Mở cửa cho giao diện và file tĩnh
-                
-                
-                .requestMatchers("/", "/login", "/admin/login", "/register").permitAll()
-                .requestMatchers("/css/**", "/js/**", "/images/**", "/*.css", "/*.js", "/fonts/**",
-                		"/favicon.ico","/electro/**","/product/**","/shop/**").permitAll()
-                
-                
-                
-                .anyRequest().authenticated()                // Các endpoint còn lại bắt buộc phải có xác thực
+                // ==========================================
+                // NHÓM 1: MỞ CỬA TÀI NGUYÊN TĨNH (Static Resources)
+                // ==========================================
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/*.css", "/*.js", "/fonts/**", "/favicon.ico", "/electro/**").permitAll()
+
+                // ==========================================
+                // NHÓM 2: MỞ CỬA CÁC TRANG GIAO DIỆN (Frontend Views & Error)
+                // ==========================================
+                .requestMatchers("/", "/login", "/admin/login", "/register", "/error").permitAll()
+                .requestMatchers("/product/**", "/shop/**").permitAll() 
+                .requestMatchers("/admin/**").permitAll() // Lưu ý: Đang mở cửa toàn bộ UI Admin (Nếu bảo mật UI bằng Thymeleaf/Interceptor thì để nguyên)
+
+                // ==========================================
+                // NHÓM 3: MỞ CỬA CÁC API PUBLIC (Không cần Token)
+                // ==========================================
+                .requestMatchers("/api/auth/**", "/api/public/**", "/api/admin/login").permitAll() // Luồng đăng nhập, đăng ký
+                .requestMatchers(HttpMethod.GET, "/api/reviews/product/**").permitAll() // CHỈ CHO request method GET của API Đánh giá
+                .requestMatchers("/api/inventory/check/**").permitAll() // API tra cứu tồn kho public cho khách
+
+                // ==========================================
+                // NHÓM 4: PHÂN QUYỀN API THEO ROLE (Role-based)
+                // ==========================================
+                // Cấp quyền GET Sản phẩm cho NV_KHO, QLCN và ADMIN để phục vụ lập Phiếu Nhập
+                .requestMatchers(HttpMethod.GET, "/api/v1/san-pham", "/api/v1/san-pham/**").hasAnyAuthority("ADMIN", "QLCN", "NV_KHO")
+
+                // ==========================================
+                // NHÓM 5: CHẶN TẤT CẢ CÁC REQUEST CÒN LẠI
+                // ==========================================
+                .anyRequest().authenticated()
+                         
             )
             // Lắp filter của chúng ta vào
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
