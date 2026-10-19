@@ -11,6 +11,7 @@ import hcmute.dto.response.EmployeeResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -90,46 +91,26 @@ public class EmployeeService {
 
         nhanVienRepository.save(nv);
     }
-
-    // UC36: Khóa / Mở khóa tài khoản
-    public void toggleStatus(Long maNV) throws Exception {
-        NhanVien nv = nhanVienRepository.findById(maNV)
-                .orElseThrow(() -> new Exception("BAD_REQUEST:Không tìm thấy nhân viên"));
-
-        // Đảo ngược trạng thái hiện tại (true thành false, false thành true)
-        nv.setTrangThai(!nv.getTrangThai());
-        
-        nhanVienRepository.save(nv);
-    }
-    
+   
  // UC37: Lấy danh sách nhân viên theo phân quyền
     public List<EmployeeResponse> getEmployeeList(String email) throws Exception {
-        // 1. Tìm nhân viên đang thực hiện request
         NhanVien currentStaff = nhanVienRepository.findByEmail(email)
                 .orElseThrow(() -> new Exception("UNAUTHORIZED:Không tìm thấy thông tin tài khoản"));
 
         String role = currentStaff.getVaiTro();
         List<NhanVien> nhanVienList;
 
-        // 2. Phân luồng dữ liệu theo Role
         if ("ADMIN".equalsIgnoreCase(role)) {
-            // ADMIN: Lấy tất cả
             nhanVienList = nhanVienRepository.findAll();
-            
         } else if ("QLCN".equalsIgnoreCase(role)) {
-            // QLCN: Bắt buộc phải thuộc 1 chi nhánh mới xem được
             if (currentStaff.getChiNhanh() == null) {
                 throw new Exception("BAD_REQUEST:Quản lý chi nhánh này chưa được phân bổ về chi nhánh nào");
             }
-            // Chỉ lấy nhân sự trong cùng chi nhánh
             nhanVienList = nhanVienRepository.findByChiNhanh_MaCN(currentStaff.getChiNhanh().getMaCN());
-            
         } else {
-            // Các role khác (NVBH, NVK...): Chặn trực tiếp (Dù Controller đã chặn, nhưng chặn thêm ở logic cho chắc cú)
             throw new Exception("FORBIDDEN:Bạn không có quyền xem danh sách nhân sự");
         }
 
-        // 3. Map Entity sang DTO để loại bỏ các trường nhạy cảm (như mật khẩu)
         return nhanVienList.stream().map(nv -> {
             EmployeeResponse dto = new EmployeeResponse();
             dto.setMaNV(nv.getMaNV());
@@ -141,14 +122,30 @@ public class EmployeeService {
             
             if (nv.getChiNhanh() != null) {
                 dto.setMaCN(nv.getChiNhanh().getMaCN());
+                // Lấy thêm tên chi nhánh (Giả sử trong entity ChiNhanh có hàm getTenCN())
+                dto.setTenCN(nv.getChiNhanh().getTenCN()); 
             }
             return dto;
         }).collect(Collectors.toList());
     }
     
     
-    
-    
+ // UC36: Khóa / Mở khóa tài khoản- Chặn tự khóa chính mình(admin khong bi chan chinh minh)
+    public void toggleStatus(Long maNV) throws Exception {
+        NhanVien nv = nhanVienRepository.findById(maNV)
+                .orElseThrow(() -> new Exception("BAD_REQUEST:Không tìm thấy nhân viên"));
+
+        // Lấy email của người đang gọi API
+        String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        
+        // Kiểm tra chặn nếu thao tác lên chính mình
+        if (nv.getEmail().equals(currentEmail)) {
+            throw new Exception("BAD_REQUEST:Bạn không thể tự khóa/mở khóa tài khoản của chính mình!");
+        }
+
+        nv.setTrangThai(!nv.getTrangThai());
+        nhanVienRepository.save(nv);
+    }
     
     
     

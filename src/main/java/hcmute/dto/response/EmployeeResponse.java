@@ -11,4 +11,5 @@ public class EmployeeResponse {
     private String vaiTro;
     private Boolean trangThai;
     private Long maCN; // Trả về ID Chi nhánh để FE tiện hiển thị/lọc
+    private String tenCN;
 }
