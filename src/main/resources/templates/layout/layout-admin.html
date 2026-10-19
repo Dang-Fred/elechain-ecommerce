@@ -124,10 +124,11 @@
     </a>
 </li>
 
-<!-- Quản lý Tồn kho: Chỉ ADMIN, QLCN và NV_KHO được thấy -->
-<li class="nav-item" th:if="${role == 'ADMIN' or role == 'QLCN' or role == 'NV_KHO'}">
+<!-- Quản lý Tồn kho: Chỉ Nhân viên kho (NV_KHO) mới được xem -->
+<li class="nav-item" th:if="${role == 'NV_KHO'}">
     <a class="nav-link" th:href="@{/admin/inventory}">
-        <i class="bi bi-boxes"></i>
+        <!-- Thêm icon thùng hàng (bi-boxes) và khoảng cách (me-2) -->
+        <i class="bi bi-boxes me-2"></i>
         <span>Quản lý Tồn kho</span>
     </a>
 </li>
