@@ -23,10 +23,13 @@ function loadCategories() {
         .then(res => res.json())
         .then(data => {
             const select = document.getElementById('maDM');
-            // Giữ lại option default đầu tiên, thêm các option từ API
-            data.forEach(item => {
-                select.insertAdjacentHTML('beforeend', `<option value="${item.maDM}">${item.tenDM}</option>`);
-            });
+            // FIX LỖI QLCN: Chỉ thêm option khi thẻ select tồn tại (nghĩa là đang ở role ADMIN)
+            if (select) {
+                // Giữ lại option default đầu tiên, thêm các option từ API
+                data.forEach(item => {
+                    select.insertAdjacentHTML('beforeend', `<option value="${item.maDM}">${item.tenDM}</option>`);
+                });
+            }
         }).catch(err => console.error("Lỗi load Danh mục:", err));
 }
 
@@ -35,14 +38,18 @@ function loadBrands() {
         .then(res => res.json())
         .then(data => {
             const select = document.getElementById('maHang');
-            data.forEach(item => {
-                select.insertAdjacentHTML('beforeend', `<option value="${item.maHang}">${item.tenHang}</option>`);
-            });
+            // FIX LỖI QLCN: Chỉ thêm option khi thẻ select tồn tại
+            if (select) {
+                data.forEach(item => {
+                    select.insertAdjacentHTML('beforeend', `<option value="${item.maHang}">${item.tenHang}</option>`);
+                });
+            }
         }).catch(err => console.error("Lỗi load Hãng SX:", err));
 }
 
 function loadProducts() {
     const tbody = document.getElementById('product-tbody');
+    if (!tbody) return; // FIX AN TOÀN: Thoát luôn nếu không tìm thấy bảng sản phẩm
     
     fetch('/api/v1/san-pham', { method: 'GET', ...fetchOptions })
         .then(res => {
@@ -51,100 +58,101 @@ function loadProducts() {
         })
         .then(data => {
             globalProducts = data; // Lưu lại để dùng cho nút Sửa
-			
-			// --- BẮT ĐẦU: LOGIC TÍNH TOÁN STATS VÀ VẼ BIỂU ĐỒ (Chỉ chạy nếu là ADMIN) ---
-			            if (currentRole === 'ADMIN') {
-			                const statTotalEl = document.getElementById('stat-total');
-			                // Kiểm tra element tồn tại (Admin mới có UI này)
-			                if (statTotalEl) {
-			                    // 1. Tính toán 4 Thẻ Stats
-			                    statTotalEl.textContent = data.length; // Tổng SP
-			                    
-			                    // Lọc Đang bán (Dựa vào API của anh đang trả về chữ "true")
-			                    const activeCount = data.filter(p => p.trangThai === "true").length;
-			                    document.getElementById('stat-active').textContent = activeCount;
-			                    
-			                    // Đếm danh mục (Dùng Set để lấy ID duy nhất, loại bỏ null/undefined)
-			                    const uniqueCats = new Set(data.map(p => p.maDM).filter(Boolean));
-			                    document.getElementById('stat-categories').textContent = uniqueCats.size;
-			                    
-			                    // Tổng giá trị (Cộng dồn giaBan)
-			                    const totalValue = data.reduce((sum, p) => sum + (Number(p.giaBan) || 0), 0);
-			                    document.getElementById('stat-value').textContent = vndFormatter.format(totalValue);
+            
+            // --- BẮT ĐẦU: LOGIC TÍNH TOÁN STATS VÀ VẼ BIỂU ĐỒ (Chỉ chạy nếu là ADMIN) ---
+            if (currentRole === 'ADMIN') {
+                const statTotalEl = document.getElementById('stat-total');
+                // Kiểm tra element tồn tại (Admin mới có UI này)
+                if (statTotalEl) {
+                    // 1. Tính toán 4 Thẻ Stats
+                    statTotalEl.textContent = data.length; // Tổng SP
+                    
+                    // Lọc Đang bán (Dựa vào API của anh đang trả về chữ "true")
+                    const activeCount = data.filter(p => p.trangThai === "true").length;
+                    document.getElementById('stat-active').textContent = activeCount;
+                    
+                    // Đếm danh mục (Dùng Set để lấy ID duy nhất, loại bỏ null/undefined)
+                    const uniqueCats = new Set(data.map(p => p.maDM).filter(Boolean));
+                    document.getElementById('stat-categories').textContent = uniqueCats.size;
+                    
+                    // Tổng giá trị (Cộng dồn giaBan)
+                    const totalValue = data.reduce((sum, p) => sum + (Number(p.giaBan) || 0), 0);
+                    document.getElementById('stat-value').textContent = vndFormatter.format(totalValue);
 
-								// 2. Xử lý dữ liệu vẽ Biểu đồ & Danh sách chú thích
-								 const chartCanvas = document.getElementById('categoryChart');
-								     if (chartCanvas) {
-								         // Nhóm mảng data theo tenDM
-								          const catCounts = data.reduce((acc, p) => {
-								          const name = p.tenDM || 'Khác';
-								                            acc[name] = (acc[name] || 0) + 1;
-								                            return acc;
-								                        }, {});
+                    // 2. Xử lý dữ liệu vẽ Biểu đồ & Danh sách chú thích
+                    const chartCanvas = document.getElementById('categoryChart');
+                    if (chartCanvas) {
+                        // Nhóm mảng data theo tenDM
+                        const catCounts = data.reduce((acc, p) => {
+                            const name = p.tenDM || 'Khác';
+                            acc[name] = (acc[name] || 0) + 1;
+                            return acc;
+                        }, {});
 
-								                        const labels = Object.keys(catCounts);
-								                        const dataValues = Object.values(catCounts);
-								                        const bgColors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'];
-								                        const totalProducts = data.length;
+                        const labels = Object.keys(catCounts);
+                        const dataValues = Object.values(catCounts);
+                        const bgColors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'];
+                        const totalProducts = data.length;
 
-								                        // --- Đổ dữ liệu ra danh sách bên phải (Legend) ---
-								                        const legendContainer = document.getElementById('categoryLegend');
-								                        if (legendContainer) {
-								                            legendContainer.innerHTML = labels.map((label, index) => {
-								                                const count = dataValues[index];
-								                                const percentage = Math.round((count / totalProducts) * 100);
-								                                const color = bgColors[index % bgColors.length];
-								                                
-								                                return `
-								                                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-light">
-								                                        <div class="d-flex align-items-center">
-								                                            <span style="width: 14px; height: 14px; background-color: ${color}; border-radius: 4px; display: inline-block; margin-right: 12px;"></span>
-								                                            <span class="small fw-medium">${label}</span>
-								                                        </div>
-								                                        <div class="d-flex align-items-center">
-								                                            <span class="small text-muted me-3">${percentage}%</span>
-								                                            <span class="small fw-bold text-dark">${count}</span>
-								                                        </div>
-								                                    </div>
-								                                `;
-								                            }).join('');
-								                        }
+                        // --- Đổ dữ liệu ra danh sách bên phải (Legend) ---
+                        const legendContainer = document.getElementById('categoryLegend');
+                        if (legendContainer) {
+                            legendContainer.innerHTML = labels.map((label, index) => {
+                                const count = dataValues[index];
+                                const percentage = Math.round((count / totalProducts) * 100);
+                                const color = bgColors[index % bgColors.length];
+                                
+                                return `
+                                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-light">
+                                        <div class="d-flex align-items-center">
+                                            <span style="width: 14px; height: 14px; background-color: ${color}; border-radius: 4px; display: inline-block; margin-right: 12px;"></span>
+                                            <span class="small fw-medium">${label}</span>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <span class="small text-muted me-3">${percentage}%</span>
+                                            <span class="small fw-bold text-dark">${count}</span>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('');
+                        }
 
-								                        // --- Vẽ Chart.js (Hiện số lên mặt bánh) ---
-								                        const ctx = chartCanvas.getContext('2d');
-								                        if (window.catChart) window.catChart.destroy(); 
-								                        
-								                        window.catChart = new Chart(ctx, {
-								                            type: 'doughnut',
-								                            plugins: [ChartDataLabels], // Khai báo dùng plugin hiện chữ
-								                            data: {
-								                                labels: labels,
-								                                datasets: [{ 
-								                                    data: dataValues, 
-								                                    backgroundColor: bgColors,
-								                                    borderWidth: 2,
-								                                    borderColor: '#ffffff'
-								                                }]
-								                            },
-								                            options: { 
-								                                maintainAspectRatio: false, 
-								                                cutout: '55%', 
-								                                plugins: { 
-								                                    legend: { display: false }, // Ẩn legend cũ (Vì đã tự code list mới)
-								                                    datalabels: {
-								                                        color: '#ffffff', // Chữ trắng trên mặt bánh
-								                                        font: { weight: 'bold', size: 14 },
-								                                        formatter: function(value) {
-								                                            return value; // Hiện số lượng lên bánh
-								                                        }
-								                                    }
-								                                } 
-								                            }
-								                        });
-								                    }
-			                }
-			            }
-			            // --- KẾT THÚC: LOGIC TÍNH TOÁN STATS VÀ VẼ BIỂU ĐỒ ---
+                        // --- Vẽ Chart.js (Hiện số lên mặt bánh) ---
+                        const ctx = chartCanvas.getContext('2d');
+                        if (window.catChart) window.catChart.destroy(); 
+                        
+                        window.catChart = new Chart(ctx, {
+                            type: 'doughnut',
+                            plugins: [ChartDataLabels], // Khai báo dùng plugin hiện chữ
+                            data: {
+                                labels: labels,
+                                datasets: [{ 
+                                    data: dataValues, 
+                                    backgroundColor: bgColors,
+                                    borderWidth: 2,
+                                    borderColor: '#ffffff'
+                                }]
+                            },
+                            options: { 
+                                maintainAspectRatio: false, 
+                                cutout: '55%', 
+                                plugins: { 
+                                    legend: { display: false }, // Ẩn legend cũ (Vì đã tự code list mới)
+                                    datalabels: {
+                                        color: '#ffffff', // Chữ trắng trên mặt bánh
+                                        font: { weight: 'bold', size: 14 },
+                                        formatter: function(value) {
+                                            return value; // Hiện số lượng lên bánh
+                                        }
+                                    }
+                                } 
+                            }
+                        });
+                    }
+                }
+            }
+            // --- KẾT THÚC: LOGIC TÍNH TOÁN STATS VÀ VẼ BIỂU ĐỒ ---
+            
             tbody.innerHTML = '';
 
             if (data.length === 0) {
@@ -153,57 +161,60 @@ function loadProducts() {
                 return;
             }
 
-			data.forEach(product => {
-			                // 1. Xử lý hiển thị ảnh (Dùng trường 'logo')
-			                let imgSrc = 'https://placehold.co/100x100?text=No+Image';
-			                
-			                if (product.logo) {
-			                    imgSrc = product.logo.startsWith('http') 
-			                        ? product.logo 
-			                        : CLOUDFLARE_URL + product.logo;
-			                }
+            data.forEach(product => {
+                // 1. Xử lý hiển thị ảnh (Dùng trường 'logo')
+                let imgSrc = 'https://placehold.co/100x100?text=No+Image';
+                
+                if (product.logo) {
+                    imgSrc = product.logo.startsWith('http') 
+                        ? product.logo 
+                        : CLOUDFLARE_URL + product.logo;
+                }
 
-			                // 2. Xử lý Badge Trạng thái (Dựa theo chuỗi "true" hoặc "false")
-			                const statusBadge = product.trangThai === "true"
-			                    ? '<span class="badge bg-success">Đang bán</span>'
-			                    : '<span class="badge bg-secondary">Ngừng bán</span>';
+                // 2. Xử lý Badge Trạng thái (Dựa theo chuỗi "true" hoặc "false")
+                const statusBadge = product.trangThai === "true"
+                    ? '<span class="badge bg-success">Đang bán</span>'
+                    : '<span class="badge bg-secondary">Ngừng bán</span>';
 
-			                // Chỉ vẽ Cột Thao tác nếu là ADMIN
-			                let actionTd = '';
-			                if (currentRole === 'ADMIN') {
-			                    actionTd = `
-			                        <td>
-			                            <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(${product.maSP})" title="Sửa">
-			                                <i class="bi bi-pencil"></i>
-			                            </button>
-			                            <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${product.maSP})" title="Xóa">
-			                                <i class="bi bi-trash"></i>
-			                            </button>
-			                        </td>
-			                    `;
-			                }
+                // Chỉ vẽ Cột Thao tác nếu là ADMIN
+                let actionTd = '';
+                if (currentRole === 'ADMIN') {
+                    actionTd = `
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(${product.maSP})" title="Sửa">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${product.maSP})" title="Xóa">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                }
 
-			                const tr = document.createElement('tr');
-			                tr.innerHTML = `
-			                    <td>
-			                        <div class="d-flex align-items-center">
-			                            <img src="${imgSrc}" class="product-image me-3" style="width: 48px; height: 48px; object-fit: cover; border-radius: 6px; border: 1px solid #eee;" alt="Logo">
-			                            <div>
-			                                <div class="fw-medium">${product.tenSP}</div>
-			                                <small class="text-muted">ID: #${product.maSP}</small>
-			                            </div>
-			                        </div>
-			                    </td>
-			                    <td><span class="badge bg-light text-dark border">${product.tenDM || 'N/A'}</span></td>
-			                    <td>${product.tenHang || 'N/A'}</td>
-			                    <td class="fw-medium">${vndFormatter.format(product.giaBan)}</td>
-			                    <td>${statusBadge}</td>
-			                    ${actionTd}
-			                `;
-			                tbody.appendChild(tr);
-			            });           
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <img src="${imgSrc}" class="product-image me-3" style="width: 48px; height: 48px; object-fit: cover; border-radius: 6px; border: 1px solid #eee;" alt="Logo">
+                            <div>
+                                <div class="fw-medium">${product.tenSP}</div>
+                                <small class="text-muted">ID: #${product.maSP}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="badge bg-light text-dark border">${product.tenDM || 'N/A'}</span></td>
+                    <td>${product.tenHang || 'N/A'}</td>
+                    <td class="fw-medium">${vndFormatter.format(product.giaBan)}</td>
+                    <td>${statusBadge}</td>
+                    ${actionTd}
+                `;
+                tbody.appendChild(tr);
+            });           
         }).catch(err => {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${err.message}</td></tr>`;
+            if (tbody) {
+                const colSpan = currentRole === 'ADMIN' ? 6 : 5;
+                tbody.innerHTML = `<tr><td colspan="${colSpan}" class="text-center text-danger">${err.message}</td></tr>`;
+            }
         });
 }
 
@@ -339,6 +350,9 @@ function loadCategoriesManager() {
         .then(data => {
             globalCatManager = data;
             const tbody = document.getElementById('cat-tbody');
+            // FIX LỖI QLCN: Thoát hàm nếu Modal Danh Mục đã bị Thymeleaf xóa
+            if (!tbody) return; 
+
             if (data.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">Chưa có danh mục nào</td></tr>`;
                 return;
@@ -418,6 +432,9 @@ function loadBrandsManager() {
         .then(data => {
             globalBrandManager = data;
             const tbody = document.getElementById('brand-tbody');
+            // FIX LỖI QLCN: Thoát hàm nếu Modal Hãng Sản Xuất đã bị Thymeleaf xóa
+            if (!tbody) return;
+
             if (data.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">Chưa có hãng nào</td></tr>`;
                 return;

@@ -110,7 +110,7 @@
 							</li>
 
 						<!-- 2. Kho & Sản phẩm: Chỉ ADMIN, QLCN và NV_KHO -->
-							<li class="nav-item" th:if="${role == 'ADMIN' or role == 'QLCN'}">
+							<li class="nav-item" th:if="${role == 'ADMIN' }">
     							<a class="nav-link" th:href="@{/admin/products}">
         							<i class="bi bi-box"></i>
         								<span>Quản lý Kho & Sản phẩm</span>
@@ -126,7 +126,7 @@
 </li>
 
 <!-- Quản lý Tồn kho: Chỉ Nhân viên kho (NV_KHO) mới được xem -->
-<li class="nav-item" th:if="${role == 'NV_KHO'}">
+<li class="nav-item" th:if="${role == 'NV_KHO' or role == 'QLCN'}">
     <a class="nav-link" th:href="@{/admin/inventory}">
         <!-- Thêm icon thùng hàng (bi-boxes) và khoảng cách (me-2) -->
         <i class="bi bi-boxes me-2"></i>
