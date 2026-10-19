@@ -33,4 +33,6 @@ public interface KhoHangRepository extends JpaRepository<KhoHang, KhoHangKey> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT k FROM KhoHang k WHERE k.id.maSP = :maSP AND k.id.maCN = :maCN")
     Optional<KhoHang> findByIdWithPessimisticLock(@Param("maSP") Long maSP, @Param("maCN") Long maCN);
+    
+    List<KhoHang> findByChiNhanh_MaCN(Long maCN);
 }

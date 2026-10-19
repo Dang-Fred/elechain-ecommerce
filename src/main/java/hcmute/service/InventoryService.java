@@ -10,6 +10,8 @@ import hcmute.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import hcmute.dto.response.InventoryItemResponse;
+import java.util.stream.Collectors;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -149,7 +151,28 @@ public class InventoryService {
         }).collect(Collectors.toList());
     }
     
-    
+    public List<InventoryItemResponse> getAllStock(String email) {
+        NhanVien nhanVien = nhanVienRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin nhân viên"));
+
+        if (nhanVien.getChiNhanh() == null) {
+            throw new RuntimeException("Nhân viên chưa được phân bổ về chi nhánh nào!");
+        }
+
+        // Lấy toàn bộ hàng trong kho theo mã chi nhánh
+        List<KhoHang> stockList = khoHangRepository.findByChiNhanh_MaCN(nhanVien.getChiNhanh().getMaCN());
+
+        // Map sang DTO
+        return stockList.stream().map(kho -> {
+            InventoryItemResponse response = new InventoryItemResponse();
+            response.setMaSP(kho.getSanPham().getMaSP());
+            response.setTenSP(kho.getSanPham().getTenSP());
+            response.setHinhAnh(kho.getSanPham().getLogo());
+            response.setGiaBan(kho.getSanPham().getGiaBan());
+            response.setSoLuongTon(kho.getSoLuongTon());
+            return response;
+        }).collect(Collectors.toList());
+    }
     
     
     
