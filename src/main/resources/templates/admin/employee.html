@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout-admin}">
+<head>
+    <title>Quản lý Nhân sự</title>
+</head>
+<body class="user-management">
+
+<div layout:fragment="content">
+    <div class="container-fluid p-4 p-lg-4">
+        
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-0">Quản lý Nhân sự</h1>
+                <p class="text-muted mb-0">Quản lý tài khoản, phân quyền và chi nhánh làm việc</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-secondary" onclick="loadEmployees()">
+                    <i class="bi bi-arrow-clockwise me-2"></i>Làm mới
+                </button>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEmployeeModal" onclick="openAddModal()">
+   					 <i class="bi bi-person-plus me-2"></i>Thêm Nhân Viên
+				</button>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white pt-3 pb-3 border-bottom">
+                <h5 class="card-title mb-0 fw-bold">Danh sách Tài khoản</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 60px;">ID</th>
+                                <th>Nhân viên</th>
+                                <th>Liên hệ</th>
+                                <th>Vai trò</th>
+                                <th>Chi nhánh</th>
+                                <th>Trạng thái</th>
+                                <th style="width: 80px;" class="text-center">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employee-tbody">
+                            <tr>
+                                <td colspan="7" class="py-4 text-center text-muted">
+                                    <div class="spinner-border spinner-border-sm" role="status"></div> Đang tải dữ liệu...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Modal 1: Thêm Nhân Viên Mới -->
+    <div class="modal fade" id="addEmployeeModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thêm Nhân Viên Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addEmployeeForm" onsubmit="saveEmployee(event)">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Họ và Tên <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="add-tenNV" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Số điện thoại <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="add-soDienThoai" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="add-email" required autocomplete="username">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Mật khẩu <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" id="add-matKhau" required autocomplete="new-password">
+                            </div>
+                            
+                            <div class="col-12"><hr class="my-2"></div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Vai trò <span class="text-danger">*</span></label>
+                                <select class="form-select" id="add-vaiTro" required>
+                                    <option value="">-- Chọn vai trò --</option>
+                                    <option value="ADMIN">Quản trị viên (ADMIN)</option>
+                                    <option value="QLCN">Quản lý chi nhánh (QLCN)</option>
+                                    <option value="NV_KHO">Nhân viên kho (NV_KHO)</option>
+                                    <option value="NV_BANHANG">Nhân viên bán hàng (NV_BANHANG)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6" id="add-branch-container">
+                                <label class="form-label fw-medium">Chi nhánh trực thuộc <span class="text-danger">*</span></label>
+                                <select class="form-select" id="add-maCN">
+                                    <option value="">-- Đang tải chi nhánh --</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer px-0 pb-0 mt-4">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-person-plus me-1"></i> Tạo tài khoản</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: Phân Quyền (Update Role/Branch) -->
+    <div class="modal fade" id="updateRoleModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cập Nhật Phân Quyền</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateRoleForm" onsubmit="updateEmployeeRole(event)">
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Vai trò hệ thống</label>
+                            <select class="form-select" id="update-vaiTro" required>
+                                <option value="ADMIN">Quản trị viên (ADMIN)</option>
+                                <option value="QLCN">Quản lý chi nhánh (QLCN)</option>
+                                <option value="NV_KHO">Nhân viên kho (NV_KHO)</option>
+                                <option value="NV_BANHANG">Nhân viên bán hàng (NV_BANHANG)</option>
+                            </select>
+                        </div>
+                        <div class="mb-4" id="update-branch-container">
+                            <label class="form-label fw-medium">Chi nhánh trực thuộc</label>
+                            <select class="form-select" id="update-maCN">
+                                <!-- Options nạp từ JS -->
+                            </select>
+                        </div>
+                        <div class="modal-footer px-0 pb-0">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-shield-check me-1"></i> Lưu phân quyền</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="scripts">
+    <!-- ĐÃ XÓA DÒNG SCRIPT BOOTSTRAP Ở ĐÂY -->
+    <script th:src="@{/admin/js/employee.js?v=1.1}"></script>
+</th:block>
+
+</body>
+</html>

@@ -104,4 +104,19 @@ public class AdminUIController {
         // Trả về file templates/admin/branch.html
         return "admin/branch";
     }
+    
+    @GetMapping("/employee")
+    public String showEmployeePage(Model model) {
+        // Lấy thông tin người dùng đang đăng nhập từ Security Context
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        
+        // Trích xuất Role để truyền xuống giao diện
+        String role = (auth != null && auth.getAuthorities() != null && !auth.getAuthorities().isEmpty()) 
+                      ? auth.getAuthorities().iterator().next().getAuthority() : "";
+                      
+        model.addAttribute("role", role);
+        
+        // Trả về file templates/admin/employee.html
+        return "admin/employee";
+    }
 }
