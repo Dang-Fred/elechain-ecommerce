@@ -51,6 +51,100 @@ function loadProducts() {
         })
         .then(data => {
             globalProducts = data; // Lưu lại để dùng cho nút Sửa
+			
+			// --- BẮT ĐẦU: LOGIC TÍNH TOÁN STATS VÀ VẼ BIỂU ĐỒ (Chỉ chạy nếu là ADMIN) ---
+			            if (currentRole === 'ADMIN') {
+			                const statTotalEl = document.getElementById('stat-total');
+			                // Kiểm tra element tồn tại (Admin mới có UI này)
+			                if (statTotalEl) {
+			                    // 1. Tính toán 4 Thẻ Stats
+			                    statTotalEl.textContent = data.length; // Tổng SP
+			                    
+			                    // Lọc Đang bán (Dựa vào API của anh đang trả về chữ "true")
+			                    const activeCount = data.filter(p => p.trangThai === "true").length;
+			                    document.getElementById('stat-active').textContent = activeCount;
+			                    
+			                    // Đếm danh mục (Dùng Set để lấy ID duy nhất, loại bỏ null/undefined)
+			                    const uniqueCats = new Set(data.map(p => p.maDM).filter(Boolean));
+			                    document.getElementById('stat-categories').textContent = uniqueCats.size;
+			                    
+			                    // Tổng giá trị (Cộng dồn giaBan)
+			                    const totalValue = data.reduce((sum, p) => sum + (Number(p.giaBan) || 0), 0);
+			                    document.getElementById('stat-value').textContent = vndFormatter.format(totalValue);
+
+								// 2. Xử lý dữ liệu vẽ Biểu đồ & Danh sách chú thích
+								 const chartCanvas = document.getElementById('categoryChart');
+								     if (chartCanvas) {
+								         // Nhóm mảng data theo tenDM
+								          const catCounts = data.reduce((acc, p) => {
+								          const name = p.tenDM || 'Khác';
+								                            acc[name] = (acc[name] || 0) + 1;
+								                            return acc;
+								                        }, {});
+
+								                        const labels = Object.keys(catCounts);
+								                        const dataValues = Object.values(catCounts);
+								                        const bgColors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'];
+								                        const totalProducts = data.length;
+
+								                        // --- Đổ dữ liệu ra danh sách bên phải (Legend) ---
+								                        const legendContainer = document.getElementById('categoryLegend');
+								                        if (legendContainer) {
+								                            legendContainer.innerHTML = labels.map((label, index) => {
+								                                const count = dataValues[index];
+								                                const percentage = Math.round((count / totalProducts) * 100);
+								                                const color = bgColors[index % bgColors.length];
+								                                
+								                                return `
+								                                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-light">
+								                                        <div class="d-flex align-items-center">
+								                                            <span style="width: 14px; height: 14px; background-color: ${color}; border-radius: 4px; display: inline-block; margin-right: 12px;"></span>
+								                                            <span class="small fw-medium">${label}</span>
+								                                        </div>
+								                                        <div class="d-flex align-items-center">
+								                                            <span class="small text-muted me-3">${percentage}%</span>
+								                                            <span class="small fw-bold text-dark">${count}</span>
+								                                        </div>
+								                                    </div>
+								                                `;
+								                            }).join('');
+								                        }
+
+								                        // --- Vẽ Chart.js (Hiện số lên mặt bánh) ---
+								                        const ctx = chartCanvas.getContext('2d');
+								                        if (window.catChart) window.catChart.destroy(); 
+								                        
+								                        window.catChart = new Chart(ctx, {
+								                            type: 'doughnut',
+								                            plugins: [ChartDataLabels], // Khai báo dùng plugin hiện chữ
+								                            data: {
+								                                labels: labels,
+								                                datasets: [{ 
+								                                    data: dataValues, 
+								                                    backgroundColor: bgColors,
+								                                    borderWidth: 2,
+								                                    borderColor: '#ffffff'
+								                                }]
+								                            },
+								                            options: { 
+								                                maintainAspectRatio: false, 
+								                                cutout: '55%', 
+								                                plugins: { 
+								                                    legend: { display: false }, // Ẩn legend cũ (Vì đã tự code list mới)
+								                                    datalabels: {
+								                                        color: '#ffffff', // Chữ trắng trên mặt bánh
+								                                        font: { weight: 'bold', size: 14 },
+								                                        formatter: function(value) {
+								                                            return value; // Hiện số lượng lên bánh
+								                                        }
+								                                    }
+								                                } 
+								                            }
+								                        });
+								                    }
+			                }
+			            }
+			            // --- KẾT THÚC: LOGIC TÍNH TOÁN STATS VÀ VẼ BIỂU ĐỒ ---
             tbody.innerHTML = '';
 
             if (data.length === 0) {

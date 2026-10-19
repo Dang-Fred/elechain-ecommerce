@@ -26,6 +26,67 @@
                 </button>
             </div>
         </div>
+        
+        <!-- KHU VỰC THỐNG KÊ VÀ BIỂU ĐỒ (CHỈ ADMIN THẤY) -->
+        <div th:if="${role == 'ADMIN'}" class="row g-4 mb-4">
+            <!-- 1. Bốn Thẻ Stats -->
+            <div class="col-xl-3 col-lg-6">
+                <div class="card h-100 border-0 shadow-sm bg-primary bg-opacity-10">
+                    <div class="card-body">
+                        <h6 class="text-primary mb-2">Tổng Sản Phẩm</h6>
+                        <h3 class="mb-0 fw-bold text-primary" id="stat-total">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-6">
+                <div class="card h-100 border-0 shadow-sm bg-success bg-opacity-10">
+                    <div class="card-body">
+                        <h6 class="text-success mb-2">Đang Bán (Active)</h6>
+                        <h3 class="mb-0 fw-bold text-success" id="stat-active">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-6">
+                <div class="card h-100 border-0 shadow-sm bg-info bg-opacity-10">
+                    <div class="card-body">
+                        <h6 class="text-info mb-2">Số Danh Mục</h6>
+                        <h3 class="mb-0 fw-bold text-info" id="stat-categories">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-6">
+                <div class="card h-100 border-0 shadow-sm bg-warning bg-opacity-10">
+                    <div class="card-body">
+                        <!-- Thêm class text-warning-emphasis để fix lỗi Dark Mode ở chữ vàng -->
+                        <h6 class="text-warning-emphasis mb-2">Tổng Giá Trị Kho</h6>
+                        <h3 class="mb-0 fw-bold text-warning-emphasis" id="stat-value">0 ₫</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Biểu đồ Phân bổ Danh mục (Căn giữa, chiếm 50% - 6 cột) -->
+            <!-- 2. Biểu đồ Phân bổ Danh mục (Mở rộng ra col-lg-8, chia 2 cột) -->
+            <div class="col-lg-8 mx-auto mt-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-transparent border-0 pt-4 pb-0 text-center">
+                        <h6 class="card-title mb-0 fw-bold">Phân Bổ Danh Mục Sản Phẩm</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center h-100">
+                            <!-- Bên trái: Biểu đồ -->
+                            <div class="col-md-7" style="position: relative; height: 280px;">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                            <!-- Bên phải: Danh sách chú thích -->
+                            <div class="col-md-5">
+                                <div id="categoryLegend" class="mt-4 mt-md-0 pe-md-3">
+                                    <!-- JS sẽ đổ danh sách: Tên, %, Số lượng vào đây -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         <!-- Products Table -->
         <div class="card">
@@ -142,7 +203,10 @@
     </script>
     
     <!-- THÊM DÒNG NÀY ĐỂ FIX LỖI "bootstrap is not defined" -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
     
     <script th:src="@{/admin/js/products.js}"></script>
 </th:block>
