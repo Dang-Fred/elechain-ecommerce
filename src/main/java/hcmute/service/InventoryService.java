@@ -12,7 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import hcmute.dto.response.InventoryItemResponse;
 import java.util.stream.Collectors;
-
+import hcmute.dto.response.MasterProductResponse;
+import java.util.Optional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -175,7 +176,75 @@ public class InventoryService {
     }
     
     
-    
+ // --- TICKET 3.3: Lấy danh sách sản phẩm gốc (Master Data) ---
+    public List<MasterProductResponse> getMasterProducts() {
+        // Lấy trực tiếp từ bảng SanPham, bỏ qua KhoHang để thấy cả SP chưa phân bổ
+        List<SanPham> masterList = sanPhamRepository.findAll();
+        
+        return masterList.stream()
+                // Nếu dự án anh định nghĩa trạng thái Active là "Hoạt động" hoặc "1" thì sửa ở đây
+                .filter(sp -> sp.getTrangThai() != null) 
+                .map(sp -> new MasterProductResponse(
+                        sp.getMaSP(), 
+                        sp.getTenSP(), 
+                        sp.getLogo(), 
+                        sp.getGiaBan(), 
+                        sp.getTrangThai()
+                )).collect(Collectors.toList());
+    }
+
+    // --- TICKET 3.3: Phân bổ sản phẩm về Chi nhánh ---
+    @Transactional(rollbackFor = Exception.class)
+    public void allocateProductToBranch(String email, Long maSP) {
+        NhanVien nhanVien = nhanVienRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin nhân viên"));
+        
+        ChiNhanh chiNhanh = nhanVien.getChiNhanh();
+        if (chiNhanh == null) {
+            throw new RuntimeException("Nhân viên chưa được phân bổ về chi nhánh nào!");
+        }
+
+        SanPham sanPham = sanPhamRepository.findById(maSP)
+                .orElseThrow(() -> new RuntimeException("Sản phẩm gốc không tồn tại (Mã SP: " + maSP + ")"));
+
+        // Kiểm tra xem sản phẩm đã có trong danh mục của chi nhánh chưa
+        Optional<KhoHang> existingKho = khoHangRepository.findById_MaSPAndId_MaCN(maSP, chiNhanh.getMaCN());
+        if (existingKho.isPresent()) {
+            throw new RuntimeException("Sản phẩm này đã nằm trong danh mục kinh doanh của chi nhánh.");
+        }
+
+        // Khởi tạo tồn kho ban đầu = 0
+        KhoHang newKho = new KhoHang();
+        newKho.setId(new KhoHangKey(maSP, chiNhanh.getMaCN()));
+        newKho.setSanPham(sanPham);
+        newKho.setChiNhanh(chiNhanh);
+        newKho.setSoLuongTon(0); // Bắt buộc = 0 theo nghiệp vụ
+
+        khoHangRepository.save(newKho);
+    }
+
+    // --- TICKET 3.3: Gỡ bỏ sản phẩm khỏi Chi nhánh ---
+    @Transactional(rollbackFor = Exception.class)
+    public void removeAllocatedProduct(String email, Long maSP) {
+        NhanVien nhanVien = nhanVienRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin nhân viên"));
+        
+        ChiNhanh chiNhanh = nhanVien.getChiNhanh();
+        if (chiNhanh == null) {
+            throw new RuntimeException("Nhân viên chưa được phân bổ về chi nhánh nào!");
+        }
+
+        KhoHang khoHang = khoHangRepository.findById_MaSPAndId_MaCN(maSP, chiNhanh.getMaCN())
+                .orElseThrow(() -> new RuntimeException("Sản phẩm chưa có trong danh mục của chi nhánh."));
+
+        // RBTV Nghiệp vụ: Tồn kho phải = 0 mới được xóa
+        if (khoHang.getSoLuongTon() > 0) {
+            throw new RuntimeException("Không thể gỡ bỏ mặt hàng này khỏi chi nhánh. Bắt buộc phải xuất hết tồn kho (Tồn kho = 0) trước khi thao tác.");
+        }
+
+        // Xóa vật lý record KhoHang
+        khoHangRepository.delete(khoHang);
+    }
     
     
     

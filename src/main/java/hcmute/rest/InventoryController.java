@@ -5,6 +5,7 @@ import hcmute.dto.request.PhieuNhapRequest;
 import hcmute.dto.response.BranchStockResponse;
 import hcmute.dto.response.InventoryItemResponse; // Bổ sung import DTO mới
 import hcmute.dto.response.LowStockAlertResponse;
+import hcmute.dto.response.MasterProductResponse;
 import hcmute.dto.response.PhieuNhapResponse;
 import hcmute.service.InventoryService;
 import jakarta.validation.Valid;
@@ -87,6 +88,48 @@ public class InventoryController {
             return ResponseEntity.ok(alerts);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Lỗi hệ thống khi tải cảnh báo: " + e.getMessage());
+        }
+    }
+    
+ // ==========================================
+    // TICKET 3.3: QUẢN LÝ DANH MỤC TẠI CHI NHÁNH
+    // ==========================================
+
+    // 1. API: Lấy danh sách sản phẩm gốc (Master Data)
+    @GetMapping("/master-products")
+    @PreAuthorize("hasAnyAuthority('QLCN', 'ADMIN', 'ROLE_QLCN', 'ROLE_ADMIN')")
+    public ResponseEntity<?> getMasterProducts() {
+        try {
+            List<MasterProductResponse> masterList = inventoryService.getMasterProducts();
+            return ResponseEntity.ok(masterList);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Lỗi lấy danh sách sản phẩm gốc: " + e.getMessage());
+        }
+    }
+
+    // 2. API: Phân bổ sản phẩm về cơ sở (Khởi tạo tồn kho)
+    @PostMapping("/allocate/{maSP}")
+    @PreAuthorize("hasAnyAuthority('QLCN', 'ADMIN', 'ROLE_QLCN', 'ROLE_ADMIN')")
+    public ResponseEntity<?> allocateProduct(@PathVariable Long maSP) {
+        try {
+            String email = SecurityContextHolder.getContext().getAuthentication().getName();
+            inventoryService.allocateProductToBranch(email, maSP);
+            return ResponseEntity.ok("Đã thêm sản phẩm vào danh mục kinh doanh của chi nhánh thành công!");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage()); // Sẽ trả về lỗi 400 nếu đã tồn tại
+        }
+    }
+
+    // 3. API: Gỡ bỏ sản phẩm khỏi chi nhánh
+    @DeleteMapping("/remove/{maSP}")
+    @PreAuthorize("hasAnyAuthority('QLCN', 'ADMIN', 'ROLE_QLCN', 'ROLE_ADMIN')")
+    public ResponseEntity<?> removeAllocatedProduct(@PathVariable Long maSP) {
+        try {
+            String email = SecurityContextHolder.getContext().getAuthentication().getName();
+            inventoryService.removeAllocatedProduct(email, maSP);
+            return ResponseEntity.ok("Đã gỡ bỏ sản phẩm khỏi danh mục kinh doanh thành công!");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage()); // Sẽ trả về lỗi 400 nếu số lượng > 0
         }
     }
 }
