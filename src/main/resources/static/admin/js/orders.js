@@ -105,7 +105,7 @@ function renderOrdersTable(orders) {
             <tr>
                 <td class="fw-bold text-primary">#${order.maDH}</td>
                 <td class="small text-muted">${dateStr}</td>
-                <td class="text-start">${order.khachHang || 'Khách vãng lai'}</td>
+                <td class="text-start fw-medium">${order.tenKhachHang || 'Khách vãng lai'}</td>
                 <td class="fw-medium">${vndFormatter.format(order.tongTien)}</td>
                 <td>${badgeHtml}</td>
                 ${actionTd}

@@ -54,12 +54,26 @@
                                 <i class="fa fa-star text-secondary"></i>
                             </div>
                             
-                            <!-- Trạng thái kho -->
-                            <div class="d-flex flex-column mb-3">
-                                <small>Tình trạng: 
-                                    <strong th:class="${sanPham.trangThai == 'true' ? 'text-primary' : 'text-danger'}" 
-                                            th:text="${sanPham.trangThai == 'true' ? 'Còn hàng (Đang kinh doanh)' : 'Ngừng kinh doanh'}">Còn hàng</strong>
-                                </small>
+                            <!-- Trạng thái kho theo chi nhánh -->
+                            <div class="mb-4">
+                                <label class="fw-bold mb-2">Chi nhánh có sẵn hàng:</label>
+                                <ul class="list-group list-group-flush border rounded" style="max-height: 180px; overflow-y: auto;">
+                                    
+                                    <!-- Render danh sách chi nhánh còn hàng -->
+                                    <li class="list-group-item d-flex justify-content-between align-items-center" th:each="branch : ${branchStocks}">
+                                        <div class="d-flex flex-column">
+                                            <span class="fw-bold text-dark" th:text="${branch.tenCN}">Tên chi nhánh</span>
+                                            <small class="text-muted" th:text="${branch.diaChi}">Địa chỉ chi nhánh</small>
+                                        </div>
+                                        <span class="badge bg-success rounded-pill fs-6" th:text="'Tồn: ' + ${branch.soLuongTon}">Tồn: 0</span>
+                                    </li>
+                                    
+                                    <!-- Hiển thị thông báo nếu mảng rỗng -->
+                                    <li class="list-group-item text-danger text-center fw-bold py-3" th:if="${#lists.isEmpty(branchStocks)}">
+                                        Sản phẩm hiện đang tạm hết hàng trên toàn hệ thống
+                                    </li>
+                                    
+                                </ul>
                             </div>
                             
                             <!-- Khu vực thêm vào giỏ hàng (Ẩn nếu ngừng kinh doanh) -->
