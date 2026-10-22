@@ -77,8 +77,18 @@ public class SecurityConfig {
                 // NHÓM 5: CHẶN TẤT CẢ CÁC REQUEST CÒN LẠI
                 // ==========================================
                 .anyRequest().authenticated()
+                
                          
             )
+            .exceptionHandling(exception -> exception
+                    .authenticationEntryPoint((request, response, authException) -> {
+                        response.sendRedirect("/login");
+                    })
+                    .accessDeniedHandler((request, response, accessDeniedException) -> {
+                        response.sendRedirect("/login"); 
+                    })
+               )
+            
             // Lắp filter của chúng ta vào
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
             
