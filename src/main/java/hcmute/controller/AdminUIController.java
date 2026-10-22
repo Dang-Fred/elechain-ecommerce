@@ -119,4 +119,19 @@ public class AdminUIController {
         // Trả về file templates/admin/employee.html
         return "admin/employee";
     }
+    
+    @GetMapping("/branch-products")
+    public String showBranchProductsPage(Model model) {
+        // Lấy thông tin người dùng đang đăng nhập từ Security Context
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        
+        // Trích xuất Role để truyền xuống giao diện (Thymeleaf cần biến này để ẩn/hiện menu)
+        String role = (auth != null && auth.getAuthorities() != null && !auth.getAuthorities().isEmpty()) 
+                      ? auth.getAuthorities().iterator().next().getAuthority() : "";
+                      
+        model.addAttribute("role", role);
+        
+        // Trả về file templates/admin/branch-products.html
+        return "admin/branch-products";
+    }
 }

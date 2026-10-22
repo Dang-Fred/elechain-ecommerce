@@ -26,18 +26,14 @@ public class ShopController {
     @GetMapping("/")
     public String showHomePage(@RequestParam(defaultValue = "0") int page, Model model) {
         
-        // 1. Khởi tạo PageRequest (Trang hiện tại: page, Kích thước: 1 sản phẩm/trang để test)
-        PageRequest pageRequest = PageRequest.of(page, 1);
+        // ĐỔI 6 THÀNH 8: Để có đủ dữ liệu lấp đầy 2 dòng x 4 cột
+        PageRequest pageRequest = PageRequest.of(page, 8);
         
-        // 2. Gọi API lấy dữ liệu công khai
         Page<ProductPublicDTO> productPage = sanPhamService.getPublicProducts(pageRequest, null, null);
         
-        // 3. Đính kèm danh sách sản phẩm của trang hiện tại
         model.addAttribute("listSanPham", productPage.getContent());
-        
-        // 4. BỔ SUNG: Đính kèm thông tin phân trang để HTML vẽ nút bấm
         model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", productPage.getTotalPages()); // Trả về 2 (vì có 2 sản phẩm chia cho size 1)
+        model.addAttribute("totalPages", productPage.getTotalPages());
         
         return "client/index"; 
     }

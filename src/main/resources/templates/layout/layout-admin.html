@@ -151,6 +151,14 @@
     </a>
 </li>
 
+<!-- Quản lý Sản phẩm Chi nhánh: Dành riêng cho Quản lý chi nhánh (và ADMIN) -->
+<li class="nav-item" th:if="${role == 'QLCN' or role == 'ADMIN'}">
+    <a class="nav-link" th:href="@{/admin/branch-products}">
+        <i class="bi bi-card-checklist me-2"></i>
+        <span>Sản phẩm Chi nhánh</span>
+    </a>
+</li>
+
     </ul>
 </nav>
             </div>
